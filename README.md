@@ -20,13 +20,16 @@ Zehn Aufträge, von leicht nach schwer:
 9. antworten mit Infos aus einer anderen E-Mail
 10. den Posteingang aufräumen
 
+Ordner: Posteingang, Entwürfe, Gesendet, Archiv, Papierkorb. Beim Schreiben kann man
+„Als Entwurf speichern“ und später weiterschreiben.
+
 Nach dem Senden prüft das Programm die Form: Adresse, Betreff, Anrede, Gruß, Name
 und die verlangte Info. Es sagt, was noch fehlt. Eine falsche Adresse kommt als
 „Nicht zugestellt“ zurück.
 
 ## Der Laptop
 
-Das Programm läuft auf einem gezeichneten Laptop auf einem Schreibtisch. Die
+Das Programm läuft auf einem gezeichneten Laptop auf einem Schreibtisch (Fake-3D, alles selbst gezeichnetes SVG). Die
 Tastatur (deutsches QWERTZ, mit Umschalt- und AltGr-Zeichen) leuchtet bei jedem
 Tastendruck mit. „Näher ran“ zoomt an den Bildschirm heran, „Ganzer Laptop“ wieder
 zurück. Das Maskottchen ist der Trappi-Wagen aus [Trappi](https://trappi.eu) als

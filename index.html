@@ -58,7 +58,7 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .ordner button[aria-current="true"] { background: var(--himmel); }
 .ordner .zahl { margin-left: auto; min-width: 26px; text-align: center; border-radius: 999px; font-size: .85rem; padding: 1px 8px; color: var(--tinte-2); }
 .ordner .zahl.neu-da { background: var(--blau); color: #fff; }
-.o-eingang svg { color: var(--blau); } .o-gesendet svg { color: #7a5af5; } .o-archiv svg { color: var(--gruen); } .o-papierkorb svg { color: var(--rot); }
+.o-eingang svg { color: var(--blau); } .o-entwuerfe svg { color: #d97706; } .o-gesendet svg { color: #7a5af5; } .o-archiv svg { color: var(--gruen); } .o-papierkorb svg { color: var(--rot); }
 
 /* Postkarte mit dem Auftrag */
 .karte { position: relative; background: #fffdf6; border-radius: var(--rund); padding: 16px 16px 14px; flex: 1; min-height: 0; overflow: auto;
@@ -161,30 +161,29 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .dialog .adr { margin-top: 10px; font-weight: 700; color: var(--tinte); min-height: 1.4em; }
 .dialog ul { line-height: 1.7; margin: 0 0 8px; padding-left: 22px; }
 
-/* ——— Szene: Laptop auf dem Schreibtisch (Maße setzt layout() im Script) ——— */
-body { background: #cdeee0; background-image: radial-gradient(circle, rgba(255,255,255,.55) 2px, transparent 2.5px); background-size: 34px 34px; overflow: hidden; }
+/* ——— Szene: feste Bühne 1600 × 1000, eingepasst; Kamera zoomt an den Bildschirm ——— */
+body { overflow: hidden; background: #cdeee0; }
 .szene { position: relative; height: 100vh; overflow: hidden; }
-.kamera { position: absolute; inset: 0; transform-origin: 0 0; transition: transform .75s cubic-bezier(.3,.7,.2,1); }
-.tisch { position: absolute; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(92deg, rgba(120,70,20,.06) 0 3px, transparent 3px 22px, rgba(120,70,20,.05) 22px 24px, transparent 24px 61px), linear-gradient(#e2ab6c, #d4955a);
-  box-shadow: inset 0 6px 0 #edc190, inset 0 7px 0 rgba(120,70,20,.25); }
-.deckel { position: absolute; background: #232a3b; box-shadow: 0 18px 40px rgba(60,40,20,.28); animation: an .9s ease-out; }
-.deckel::before { content: ""; position: absolute; top: 1.2%; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #3b4560; }
-@keyframes an { from { filter: brightness(.35); } to { filter: none; } }
-.app { position: absolute; transform-origin: 0 0; border-radius: 10px; overflow: hidden;
+.buehne { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; transform-origin: 0 0; }
+.kamera { position: absolute; inset: 0; transform-origin: 0 0; transition: transform .75s cubic-bezier(.3,.7,.2,1); will-change: transform; }
+#welt { position: absolute; left: 0; top: 0; width: 1600px; height: 1000px; overflow: visible; }
+#welt .kopf { fill: url(#kappe); stroke: #c3cad6; stroke-width: 1; }
+#welt .seite { fill: #aeb6c4; }
+#welt .taste { transition: transform .06s; }
+#welt .taste.an { transform: translateY(3px); }
+#welt .taste.an .kopf { fill: var(--gelb); stroke: var(--gelb-tief); }
+#welt text { font-family: var(--schrift); fill: var(--tinte); font-weight: 800; pointer-events: none; }
+#welt text.klein { fill: var(--tinte-2); font-weight: 700; }
+#welt text.altgr { fill: var(--blau); }
+#welt .pad { fill: url(#pad); stroke: #c3cad6; transition: fill .1s; }
+#welt .pad.an { fill: #ffe9a8; }
+.app { position: absolute; transform-origin: 0 0; border-radius: 6px; overflow: hidden; animation: an .9s ease-out;
   background: var(--himmel); background-image: radial-gradient(circle at 12% 0%, #eef5ff 0, transparent 40%), radial-gradient(circle at 100% 100%, #cfe2ff 0, transparent 45%); }
-.deck { position: absolute; overflow: visible; filter: drop-shadow(0 10px 14px rgba(60,40,20,.28)); }
-.deck .taste { fill: #fbfcff; stroke: #b8bfcc; stroke-width: 1; transition: fill .08s; }
-.deck .taste.an { fill: var(--gelb); stroke: var(--gelb-tief); }
-.deck text { font-family: var(--schrift); fill: var(--tinte); font-weight: 800; pointer-events: none; }
-.deck text.klein { fill: var(--tinte-2); font-weight: 700; }
-.deck text.altgr { fill: var(--blau); font-weight: 800; }
-.deck .pad { fill: #d3d8e1; stroke: #b8bfcc; stroke-width: 1.2; transition: fill .1s; }
-.deck .pad.an { fill: #ffe08a; }
-.sprite { position: absolute; pointer-events: none; }
-.zettel { z-index: 3; padding: 12px 12px 14px; background: #fff27a; color: #3b3200; font-weight: 800; font-size: 15px; line-height: 1.35;
-  transform: rotate(4deg); box-shadow: 0 6px 10px rgba(60,40,20,.25); border-radius: 2px 2px 10px 2px; }
-.zettel b { display: block; font-size: 13px; margin-bottom: 3px; color: #8a6d00; }
+@keyframes an { from { filter: brightness(.3); } to { filter: none; } }
+.zettel { position: absolute; left: 1392px; top: 262px; width: 168px; z-index: 3; padding: 16px 14px 16px; background: #fff27a; color: #3b3200; font-weight: 800; font-size: 19px; line-height: 1.35;
+  transform: rotate(4deg); box-shadow: 0 10px 16px rgba(40,70,55,.25); border-radius: 2px 2px 14px 2px; pointer-events: none; }
+.zettel::before { content: ""; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #e0474c; box-shadow: 0 2px 3px rgba(0,0,0,.3); }
+.zettel b { display: block; font-size: 15px; margin-bottom: 4px; color: #8a6d00; }
 .zoom { position: fixed; z-index: 50; bottom: 14px; right: 14px; border: 0; background: var(--papier); color: var(--tinte); border-radius: 999px; padding: 10px 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(31,42,85,.18); }
 .zoom:hover { background: var(--gelb); }
 @media (max-width: 980px) { .haupt { grid-template-columns: 1fr; } .spalte { min-height: 300px; } }
@@ -192,55 +191,11 @@ body { background: #cdeee0; background-image: radial-gradient(circle, rgba(255,2
 </style>
 </head>
 <body>
-<div class="szene">
-<div class="kamera" id="kamera">
-  <div class="tisch" id="tisch"></div>
-  <!-- Sprites: selbst gezeichnet, CC BY-SA wie das Spiel -->
-  <svg class="sprite s-heft" id="s-heft" viewBox="0 0 260 180" aria-hidden="true">
-    <rect x="14" y="10" width="232" height="162" rx="12" fill="#5b8def" stroke="#1f2a55" stroke-width="3.5"/>
-    <g fill="#fff" stroke="#1f2a55" stroke-width="2.5">
-      <circle cx="30" cy="34" r="5"/><circle cx="30" cy="62" r="5"/><circle cx="30" cy="90" r="5"/><circle cx="30" cy="118" r="5"/><circle cx="30" cy="146" r="5"/>
-    </g>
-    <rect x="86" y="44" width="126" height="46" rx="8" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
-    <path d="M100 60h96M100 75h70" stroke="#9fb4e6" stroke-width="4" stroke-linecap="round"/>
-    <path d="M190 118l7 14 15 2-11 10 3 15-14-7-13 7 3-15-11-10 15-2z" fill="#ffc53d" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M70 130q12-16 24 0t24 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-  </svg>
-  <svg class="sprite s-pflanze" id="s-pflanze" viewBox="0 0 150 200" aria-hidden="true">
-    <path d="M75 120C60 90 30 88 18 60c26 2 46 20 57 50zM75 118c4-36 28-58 58-62-6 30-28 52-58 62zM75 116c-10-40 0-78 10-100 14 30 10 70-10 100z" fill="#3fbf7f" stroke="#1f2a55" stroke-width="3.5" stroke-linejoin="round"/>
-    <path d="M75 118V60" stroke="#1f2a55" stroke-width="3"/>
-    <path d="M36 116h78l-10 72a8 8 0 0 1-8 7H54a8 8 0 0 1-8-7z" fill="#ffc53d" stroke="#1f2a55" stroke-width="3.5" stroke-linejoin="round"/>
-    <rect x="30" y="110" width="90" height="16" rx="5" fill="#ffd66b" stroke="#1f2a55" stroke-width="3.5"/>
-    <circle cx="62" cy="152" r="4" fill="#1f2a55"/><circle cx="88" cy="152" r="4" fill="#1f2a55"/><path d="M66 166q9 8 18 0" fill="none" stroke="#1f2a55" stroke-width="3" stroke-linecap="round"/>
-  </svg>
-  <svg class="sprite s-flasche" id="s-flasche" viewBox="0 0 90 220" aria-hidden="true">
-    <rect x="28" y="6" width="34" height="30" rx="6" fill="#1f2a55"/>
-    <rect x="22" y="30" width="46" height="16" rx="5" fill="#2e3b6e" stroke="#1f2a55" stroke-width="3"/>
-    <path d="M18 48h54a6 6 0 0 1 6 6v150a10 10 0 0 1-10 10H22a10 10 0 0 1-10-10V54a6 6 0 0 1 6-6z" fill="#34c3c3" stroke="#1f2a55" stroke-width="3.5"/>
-    <path d="M24 64v130" stroke="#bff0ef" stroke-width="6" stroke-linecap="round"/>
-    <circle cx="50" cy="128" r="17" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
-    <path d="M50 117l3.5 7 7.5 1-5.5 5 1.5 7.5-7-3.5-7 3.5 1.5-7.5-5.5-5 7.5-1z" fill="#ff7a6b"/>
-  </svg>
-  <svg class="sprite s-maeppchen" id="s-maeppchen" viewBox="0 0 190 100" aria-hidden="true">
-    <rect x="40" y="6" width="12" height="56" rx="3" fill="#ffc53d" stroke="#1f2a55" stroke-width="3" transform="rotate(-18 46 34)"/>
-    <path d="M36 -2l6 -12 6 12z" fill="#f3d7a8" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round" transform="rotate(-18 46 34) translate(4 8)"/>
-    <rect x="64" y="2" width="12" height="60" rx="3" fill="#5b8def" stroke="#1f2a55" stroke-width="3" transform="rotate(10 70 32)"/>
-    <rect x="96" y="0" width="26" height="62" rx="3" fill="#fff" stroke="#1f2a55" stroke-width="3" transform="rotate(22 109 31)"/>
-    <path d="M100 12h8M100 22h12M100 32h8M100 42h12" stroke="#1f2a55" stroke-width="2.5" transform="rotate(22 109 31)"/>
-    <rect x="6" y="40" width="178" height="56" rx="28" fill="#ff7a6b" stroke="#1f2a55" stroke-width="3.5"/>
-    <path d="M24 52h142" stroke="#1f2a55" stroke-width="3" stroke-dasharray="4 5"/>
-    <path d="M158 52v18" stroke="#1f2a55" stroke-width="3" stroke-linecap="round"/><rect x="151" y="68" width="14" height="16" rx="4" fill="#ffc53d" stroke="#1f2a55" stroke-width="3"/>
-    <circle cx="60" cy="74" r="9" fill="#fff" stroke="#1f2a55" stroke-width="2.5"/><circle cx="60" cy="74" r="3" fill="#1f2a55"/>
-  </svg>
-  <svg class="sprite s-apfel" id="s-apfel" viewBox="0 0 64 64" aria-hidden="true">
-    <path d="M32 18c-6-6-24-4-24 14 0 16 12 28 20 28 3 0 3-2 4-2s1 2 4 2c8 0 20-12 20-28 0-18-18-20-24-14z" fill="#e0474c" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M32 18c0-6 2-10 5-13" stroke="#1f2a55" stroke-width="3" stroke-linecap="round" fill="none"/>
-    <path d="M36 10c6-6 14-4 16-2-4 6-12 6-16 2z" fill="#3fbf7f" stroke="#1f2a55" stroke-width="2.5" stroke-linejoin="round"/>
-    <path d="M17 30c1-5 4-8 8-9" stroke="#ffb3b0" stroke-width="4" stroke-linecap="round" fill="none"/>
-  </svg>
-  <div class="sprite zettel" id="zettel" aria-hidden="true"><b>Nicht vergessen!</b>An · Betreff<br>Anrede<br>Text<br>Gruß + Name</div>
-  <svg class="deck" id="deck" aria-hidden="true"></svg>
-  <div class="deckel" id="deckel"><div class="app" id="app"><div class="app-innen">
+<div class="szene" id="szene">
+<div class="buehne" id="buehne"><div class="kamera" id="kamera">
+  <svg id="welt" viewBox="0 0 1600 1000" aria-hidden="true"></svg>
+  <div class="zettel" aria-hidden="true"><b>Nicht vergessen!</b>An · Betreff<br>Anrede<br>Text<br>Gruß + Name</div>
+  <div class="app" id="app"><div class="app-innen">
   <header class="kopf">
     <div class="marke" aria-label="TrappiPost">
       <svg viewBox="0 0 80 56" aria-hidden="true" id="logo"></svg>
@@ -265,8 +220,8 @@ body { background: #cdeee0; background-image: radial-gradient(circle, rgba(255,2
     </section>
     <section class="spalte" id="rechts" aria-label="Lesen und Schreiben"></section>
   </main>
-</div></div></div>
-</div>
+</div></div>
+</div></div>
 <button class="zoom" id="zoom" type="button"></button>
 </div>
 
@@ -294,6 +249,8 @@ const WAGEN_SVG = `
 
 // ——— Symbole ———
 const IC = {
+  entwuerfe: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6"/><path d="m9 16 5-5 2 2-5 5H9Z"/>',
+  speichern: '<path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z"/><path d="M8 3v5h7V3"/><rect x="8" y="13" width="8" height="6" rx="1"/>',
   eingang: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z"/>',
   gesendet: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
   archiv: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
@@ -479,11 +436,12 @@ const VORLAGEN = {
 function neueEndlosAufgabe() {
   const nr = S.endlos.nr, id = 'e' + nr;
   const imEingang = S.mails.filter(m => m.ordner === 'eingang').length;
-  let typ = imEingang >= 7 ? 'leer' : zufall(['antwort', 'antwort', 'antwort', 'neu', 'neu', 'weiter', 'weiter', 'loeschen', 'archiv', 'zurueck']);
+  let typ = imEingang >= 7 ? 'leer' : zufall(['antwort', 'antwort', 'antwort', 'neu', 'neu', 'weiter', 'weiter', 'loeschen', 'archiv', 'zurueck', 'entwurf']);
   if (typ === S.endlos.letzter && typ !== 'antwort') typ = 'antwort';
-  let v = typ === 'leer' ? {} : zufall(VORLAGEN[typ])(S);
+  const ohneVorlage = typ === 'leer' || typ === 'entwurf';
+  let v = ohneVorlage ? {} : zufall(VORLAGEN[typ])(S);
   let tries = 0;
-  while (typ !== 'leer' && S.endlos.titel && v.titel === S.endlos.titel && tries++ < 5) v = zufall(VORLAGEN[typ])(S);
+  while (!ohneVorlage && S.endlos.titel && v.titel === S.endlos.titel && tries++ < 5) v = zufall(VORLAGEN[typ])(S);
   const spec = { typ, id, an: v.an, woerter: v.woerter || [], anrede: v.anrede, frage: !!v.frage };
   const mails = [];
   if (typ === 'antwort') { spec.titel = v.titel; spec.tipp = `Öffne die E-Mail „${v.betreff}“. Klick auf „Antworten“.`; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
@@ -492,8 +450,9 @@ function neueEndlosAufgabe() {
   if (typ === 'loeschen') { spec.titel = `Lösch die Werbung „${v.betreff}“.`; spec.tipp = 'Öffne die E-Mail. Klick auf „Löschen“.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
   if (typ === 'archiv') { spec.titel = `Heb die E-Mail „${v.betreff}“ auf: Archiviere sie.`; spec.tipp = 'Öffne die E-Mail. Klick auf „Archivieren“.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
   if (typ === 'zurueck') { spec.titel = `Hoppla! Die E-Mail „${v.betreff}“ ist im Papierkorb gelandet. Hol sie zurück.`; spec.tipp = 'Öffne links den Papierkorb.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text, ordner: 'papierkorb', gelesen: true }); }
+  if (typ === 'entwurf') { const p = zufall(KONTAKTE); spec.an = p.adr; spec.titel = `Fang eine E-Mail an ${p.name} an. Schreib nur den Betreff und speichere sie als Entwurf.`; spec.tipp = 'Klick beim Schreiben auf „Als Entwurf speichern“.'; }
   if (typ === 'leer') { spec.titel = 'Dein Posteingang ist voll. Räum auf, bis er leer ist.'; spec.tipp = 'Was erledigt ist: archivieren. Was du nicht brauchst: löschen.'; }
-  const grund = { antwort: 90, neu: 100, weiter: 75, loeschen: 20, archiv: 20, zurueck: 25, leer: 45 }[typ];
+  const grund = { antwort: 90, neu: 100, weiter: 75, loeschen: 20, archiv: 20, zurueck: 25, leer: 45, entwurf: 40 }[typ];
   spec.sekunden = Math.round(grund * Math.max(0.6, 1 - 0.03 * S.endlos.punkte));
   spec.bis = Date.now() + spec.sekunden * 1000;
   S.endlos.letzter = typ; S.endlos.titel = spec.titel;
@@ -508,6 +467,13 @@ function pruefeEndlos(sp, e) {
   if (sp.typ === 'archiv') return e.typ === 'verschoben' && e.mail.id === sp.id && e.nach === 'archiv';
   if (sp.typ === 'zurueck') return e.typ === 'verschoben' && e.mail.id === sp.id && e.nach === 'eingang';
   if (sp.typ === 'leer') return S.mails.every(m => m.ordner !== 'eingang');
+  if (sp.typ === 'entwurf') {
+    if (e.typ !== 'entwurf') return false;
+    const fehlt = [];
+    if (e.mail.an !== sp.an) fehlt.push(`Trag die Adresse ein: ${sp.an}`);
+    if (e.mail.betreff === '(ohne Betreff)') fehlt.push('Schreib einen Betreff.');
+    return fehlt.length ? { fehlt } : true;
+  }
   if (e.typ !== 'gesendet') return false;
   const m = e.mail, fehlt = [];
   if (sp.typ === 'antwort') {
@@ -607,6 +573,12 @@ function vorbeiDialog() {
 // ——— Aktionen ———
 function oeffne(id) {
   const m = S.mails.find(x => x.id === id);
+  if (m.ordner === 'entwuerfe') {
+    ansicht.schreiben = { art: m.art || 'neu', bezug: m.bezug || null, an: m.an, betreff: m.betreff, text: m.text, entwurf: m.id };
+    ansicht.offen = null; ansicht.hinweis = ''; ansicht.buch = false; render();
+    const t = document.getElementById('fText'); if (t) { t.focus(); t.setSelectionRange(0, 0); }
+    return;
+  }
   ansicht.offen = id; ansicht.schreiben = null; ansicht.buch = false;
   if (!m.gelesen) { m.gelesen = true; speichern(); }
   render(); melde({ typ: 'geoeffnet', mail: m });
@@ -649,12 +621,23 @@ function senden() {
   else if (!eigen({ text: w.text })) h = 'Deine E-Mail ist noch leer.';
   if (h) { ansicht.hinweis = h; render(); return; }
   const m = { id: 'g' + Date.now(), ordner: 'gesendet', von: S.adr, an: w.an.toLowerCase(), betreff: w.betreff, text: w.text.replace(/^\n+/, ''), zeit: jetzt(), gelesen: true, art: w.art, bezug: w.bezug };
+  if (w.entwurf) S.mails = S.mails.filter(x => x.id !== w.entwurf);
   S.mails.unshift(m);
   ansicht.schreiben = null; ansicht.hinweis = ''; speichern();
   toast(`${ic('senden')} Gesendet`);
   render();
   if (!person(m.an) && m.an !== S.adr) setTimeout(() => zurueckgekommen(m), 1500);
   melde({ typ: 'gesendet', mail: m });
+}
+function alsEntwurf() {
+  merkeEntwurf();
+  const w = ansicht.schreiben;
+  const daten = { ordner: 'entwuerfe', von: S.adr, an: w.an.trim().toLowerCase(), betreff: w.betreff.trim() || '(ohne Betreff)', text: w.text, zeit: jetzt(), gelesen: true, art: w.art, bezug: w.bezug };
+  let m = w.entwurf && S.mails.find(x => x.id === w.entwurf);
+  if (m) Object.assign(m, daten); else { m = { id: 'd' + Date.now(), ...daten }; S.mails.unshift(m); }
+  ansicht.schreiben = null; ansicht.hinweis = ''; speichern();
+  toast(`${ic('speichern')} Als Entwurf gespeichert`);
+  render(); melde({ typ: 'entwurf', mail: m });
 }
 function zurueckgekommen(m) {
   const id = 'post' + Date.now();
@@ -665,15 +648,16 @@ function zurueckgekommen(m) {
 }
 
 // ——— Anzeige ———
-const ORDNER = [['eingang', 'Posteingang'], ['gesendet', 'Gesendet'], ['archiv', 'Archiv'], ['papierkorb', 'Papierkorb']];
+const ORDNER = [['eingang', 'Posteingang'], ['entwuerfe', 'Entwürfe'], ['gesendet', 'Gesendet'], ['archiv', 'Archiv'], ['papierkorb', 'Papierkorb']];
 const LEER = {
   eingang: 'Alles erledigt. Dein Posteingang ist leer.',
   gesendet: 'Du hast noch nichts gesendet.',
   archiv: 'Das Archiv ist leer. Hier landen E-Mails, die du aufheben willst.',
   papierkorb: 'Der Papierkorb ist leer.',
+  entwuerfe: 'Keine Entwürfe. Beim Schreiben kannst du auf „Als Entwurf speichern“ klicken und später weiterschreiben.',
 };
 function marke(adr, gross) {
-  const p = person(adr) || { farbe: '#7a5af5', kurz: klein(adr)[0].toUpperCase() };
+  const p = person(adr) || { farbe: '#7a5af5', kurz: adr ? adr[0].toUpperCase() : '?' };
   return `<span class="briefmarke${gross ? ' gross' : ''}" style="--c:${p.farbe}" aria-hidden="true">${esc(p.kurz)}</span>`;
 }
 const nameVon = (adr) => (person(adr) || {}).name || adr;
@@ -692,7 +676,7 @@ function render() {
   // Postkarte
   const a = AUFTRAEGE[S.auftrag];
   const punkte = AUFTRAEGE.map((_, i) => `<i class="${i < S.auftrag ? 'ok' : i === S.auftrag ? 'jetzt' : ''}"></i>`).join('');
-  const rueck = S.rueck ? `<div class="rueck fehlt"><b>Gesendet – aber für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : '';
+  const rueck = S.rueck ? `<div class="rueck fehlt"><b>Für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : '';
   const sp = S.endlos && S.endlos.spec;
   document.getElementById('karte').innerHTML = a ? `
       <span class="briefmarke stempel" id="stempel" style="--c:var(--gelb)">${S.auftrag + 1}<br>von ${AUFTRAEGE.length}</span>
@@ -718,9 +702,9 @@ function render() {
   document.getElementById('listTitel').textContent = titel;
   document.getElementById('listZahl').textContent = liste.length ? liste.length : '';
   document.getElementById('liste').innerHTML = liste.length ? liste.map(m => {
-    const wer = m.ordner === 'gesendet' ? 'An: ' + nameVon(m.an) : nameVon(m.von);
+    const wer = m.ordner === 'entwuerfe' ? 'Entwurf an: ' + (m.an ? nameVon(m.an) : '…') : m.ordner === 'gesendet' ? 'An: ' + nameVon(m.an) : nameVon(m.von);
     return `<button class="eintrag${m.gelesen ? '' : ' ungelesen'}${frisch.has(m.id) ? ' frisch' : ''}" data-mail="${m.id}" aria-current="${ansicht.offen === m.id}">
-      ${marke(m.ordner === 'gesendet' ? m.an : m.von)}<span class="von">${esc(wer)}</span><span class="zeit">${esc(m.zeit)}</span><span class="betreff">${esc(m.betreff)}</span></button>`;
+      ${marke(['gesendet', 'entwuerfe'].includes(m.ordner) ? m.an : m.von)}<span class="von">${esc(wer)}</span><span class="zeit">${esc(m.zeit)}</span><span class="betreff">${esc(m.betreff)}</span></button>`;
   }).join('') : `<div class="leer">${ic(ansicht.ordner)}${LEER[ansicht.ordner]}</div>`;
   frisch.clear();
   // Rechts
@@ -755,6 +739,7 @@ function htmlSchreiben() {
   const w = ansicht.schreiben;
   const titel = { neu: 'Neue E-Mail', antwort: 'Antworten', weiter: 'Weiterleiten' }[w.art];
   return `<div class="werkzeug"><button class="wk gelb" data-tu="senden">${ic('senden')} Senden</button>
+      <button class="wk" data-tu="entwurf">${ic('speichern')} Als Entwurf speichern</button>
       <button class="wk" data-tu="verwerfen">${ic('weg')} Verwerfen</button>
       <span style="margin-left:auto;align-self:center;font-weight:800;color:var(--tinte-2)">${titel}</span></div>
     <div class="schreiben">
@@ -833,12 +818,13 @@ document.addEventListener('click', (e) => {
   else if (tu === 'loeschen') verschiebe(id, 'papierkorb');
   else if (tu === 'zurueck') verschiebe(id, 'eingang');
   else if (tu === 'senden') senden();
-  else if (tu === 'verwerfen') { ansicht.schreiben = null; ansicht.hinweis = ''; render(); }
+  else if (tu === 'entwurf') alsEntwurf();
+  else if (tu === 'verwerfen') { if (ansicht.schreiben.entwurf) { S.mails = S.mails.filter(x => x.id !== ansicht.schreiben.entwurf); speichern(); } ansicht.schreiben = null; ansicht.hinweis = ''; render(); }
   else if (tu === 'buch') { merkeEntwurf(); ansicht.buch = !ansicht.buch; render(); }
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ansicht.buch) { merkeEntwurf(); ansicht.buch = false; render(); } });
 
-// ——— Der Laptop: Maße, Tastatur, Kamera ———
+// ——— Die Bühne: Schreibtisch und Laptop als Fake-3D (feste Bühne 1600 × 1000, wird eingepasst) ———
 // Tasten: [Beschriftung, KeyboardEvent.code, Breite, Umschalt-Zeichen, AltGr-Zeichen]
 const REIHEN = [
   [['^', 'Backquote', 1, '°'], ['1', 'Digit1', 1, '!'], ['2', 'Digit2', 1, '"', '²'], ['3', 'Digit3', 1, '§', '³'], ['4', 'Digit4', 1, '$'], ['5', 'Digit5', 1, '%'], ['6', 'Digit6', 1, '&'], ['7', 'Digit7', 1, '/', '{'], ['8', 'Digit8', 1, '(', '['], ['9', 'Digit9', 1, ')', ']'], ['0', 'Digit0', 1, '=', '}'], ['ß', 'Minus', 1, '?', '\\'], ['´', 'Equal', 1, '`'], ['⌫', 'Backspace', 1.9]],
@@ -847,91 +833,147 @@ const REIHEN = [
   [['⇧', 'ShiftLeft', 1.3], ['<', 'IntlBackslash', 1, '>', '|'], ['Y', 'KeyZ'], ['X', 'KeyX'], ['C', 'KeyC'], ['V', 'KeyV'], ['B', 'KeyB'], ['N', 'KeyN'], ['M', 'KeyM'], [',', 'Comma', 1, ';'], ['.', 'Period', 1, ':'], ['-', 'Slash', 1, '_'], ['⇧', 'ShiftRight', 2.6]],
   [['fn', '', 1], ['strg', 'ControlLeft', 1.25], ['alt', 'AltLeft', 1.25], ['', 'Space', 6.2], ['alt gr', 'AltRight', 1.25], ['strg', 'ControlRight', 1.1], ['←', 'ArrowLeft', 1], ['↑↓', 'ArrowUp ArrowDown', 1], ['→', 'ArrowRight', 1]],
 ];
-let GEO = null;
-let zoom = localStorage.getItem('trappipost-zoom') === '1';
-function layout() {
-  const vw = innerWidth, vh = innerHeight;
-  const L = Math.max(560, Math.min(1500, (vh - 30) / 0.94, (vw - 36) / 1.14));
-  const lidH = L * 0.625, D = L * 0.27, Wb = L * 1.13, rand = L * 0.017;
-  const x0 = (vw - L) / 2, y0 = 10;
-  GEO = { L, lidH, D, Wb, rand, x0, y0 };
-  const deckel = document.getElementById('deckel');
-  Object.assign(deckel.style, { left: x0 + 'px', top: y0 + 'px', width: L + 'px', height: lidH + 'px', borderRadius: `${L * .026}px ${L * .026}px ${L * .008}px ${L * .008}px` });
-  // Bildschirm: Die App hat eine feste logische Größe und wird hineingeskaliert.
-  const w = L - 2 * rand, h = lidH - 2 * rand;
-  const sk = Math.min(1, w / 1100, h / 660);
-  Object.assign(document.getElementById('app').style, { left: rand + 'px', top: rand + 'px', width: w / sk + 'px', height: h / sk + 'px', transform: `scale(${sk})` });
-  GEO.schirm = { x: x0 + rand, y: y0 + rand, w, h };
-  document.getElementById('tisch').style.top = (y0 + lidH * 0.8) + 'px';
-  zeichneDeck();
-  setzeSprites();
-  kamera(false);
+const BW = 1600, BH = 1000;
+const SCHIRM = { x: 287, y: 42, w: 1026, h: 620 };
+const DECK = { yh: 708, xh1: 258, xh2: 1342, yv: 952, xv1: 112, xv2: 1488 };   // Handablage: hinten schmal, vorne breit
+const DP = (u, v) => { const x1 = DECK.xh1 + (DECK.xv1 - DECK.xh1) * v, x2 = DECK.xh2 + (DECK.xv2 - DECK.xh2) * v; return [x1 + (x2 - x1) * u, DECK.yh + (DECK.yv - DECK.yh) * v]; };
+const pts = (a) => a.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+const quad = (u1, v1, u2, v2) => pts([DP(u1, v1), DP(u2, v1), DP(u2, v2), DP(u1, v2)]);
+function zylinder(id, cx, yOben, b, h, hell, dunkel) {
+  const rx = b / 2, ry = b * 0.17;
+  return `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${dunkel}"/><stop offset=".35" stop-color="${hell}"/><stop offset=".55" stop-color="${hell}"/><stop offset="1" stop-color="${dunkel}"/></linearGradient>
+    <path d="M${cx - rx} ${yOben} v${h} a${rx} ${ry} 0 0 0 ${b} 0 v${-h} z" fill="url(#${id})" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/>`;
 }
-function zeichneDeck() {
-  const { L, lidH, D, Wb, x0, y0 } = GEO;
-  const svg = document.getElementById('deck');
-  const links = x0 - (Wb - L) / 2;
-  Object.assign(svg.style, { left: links + 'px', top: (y0 + lidH - 1) + 'px', width: Wb + 'px', height: (D + L * 0.02) + 'px' });
-  svg.setAttribute('viewBox', `0 0 ${Wb} ${D + L * 0.02}`);
-  // Punkt (u, v) der Tastaturebene → Bildpunkt; hinten so breit wie der Deckel, vorne breiter.
-  const P = (u, v) => { const b = L + (Wb - L) * v; return [Wb / 2 + (u - 0.5) * b, v * D]; };
-  const poly = (u1, v1, u2, v2) => [P(u1, v1), P(u2, v1), P(u2, v2), P(u1, v2)].map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
-  let h = `<defs><linearGradient id="alu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9ecf2"/><stop offset="1" stop-color="#cfd4dd"/></linearGradient></defs>`;
-  h += `<polygon points="${poly(0, 0, 1, 1)}" fill="url(#alu)" stroke="#aeb5c2" stroke-width="1.5"/>`;
-  const [fl] = P(0, 1), [fr] = P(1, 1);
-  h += `<path d="M${fl} ${D} L${fr} ${D} L${fr - L * 0.01} ${D + L * 0.018} L${fl + L * 0.01} ${D + L * 0.018} Z" fill="#a9b0bd"/>`;
-  const u0 = 0.075, u1 = 0.925, v0 = 0.07, v1 = 0.63, rh = (v1 - v0) / REIHEN.length, spalt = 0.004;
+function baueWelt() {
+  let s = `<defs>
+    <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="weich2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+    <linearGradient id="wand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9f2e7"/><stop offset="1" stop-color="#bfe4d3"/></linearGradient>
+    <radialGradient id="licht" cx="12%" cy="8%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <pattern id="punkte" width="36" height="36" patternUnits="userSpaceOnUse"><circle cx="18" cy="18" r="2.4" fill="#fff" opacity=".55"/></pattern>
+    <linearGradient id="holz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c5854a"/><stop offset=".45" stop-color="#d99a5c"/><stop offset="1" stop-color="#e9b374"/></linearGradient>
+    <linearGradient id="holzglanz" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="kante" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a86a38"/><stop offset="1" stop-color="#7d4a22"/></linearGradient>
+    <linearGradient id="rand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdd3de"/><stop offset="1" stop-color="#8e97a8"/></linearGradient>
+    <linearGradient id="rahmen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3d"/><stop offset="1" stop-color="#151925"/></linearGradient>
+    <linearGradient id="alu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d5dae3"/><stop offset=".55" stop-color="#e9ecf2"/><stop offset="1" stop-color="#f5f7fa"/></linearGradient>
+    <linearGradient id="aluglanz" x1="0" y1="0" x2="1" y2="0"><stop offset=".15" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".55"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bcc3cf"/><stop offset="1" stop-color="#8a92a2"/></linearGradient>
+    <linearGradient id="kappe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef1f6"/></linearGradient>
+    <linearGradient id="pad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe3ea"/><stop offset="1" stop-color="#e9ecf1"/></linearGradient>
+    <radialGradient id="uhrglas" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#eef3f8"/></radialGradient>
+  </defs>`;
+  // Wand mit Fensterlicht
+  s += `<rect width="${BW}" height="590" fill="url(#wand)"/><rect width="${BW}" height="590" fill="url(#punkte)"/><rect width="${BW}" height="590" fill="url(#licht)"/>`;
+  // Pinnwand links
+  s += `<g transform="translate(34 96) rotate(-2)"><rect x="6" y="8" width="200" height="240" rx="10" fill="#000" opacity=".12" filter="url(#weich2)"/>
+    <rect width="200" height="240" rx="10" fill="#a8743f"/><rect x="10" y="10" width="180" height="220" rx="5" fill="#d9a86c"/>
+    <rect x="24" y="28" width="74" height="92" fill="#fff" transform="rotate(-5 60 74)"/><path d="M36 92l14-22 12 14 8-8 16 16z" fill="#7cc6a0" transform="rotate(-5 60 74)"/><circle cx="78" cy="52" r="8" fill="#ffc53d" transform="rotate(-5 60 74)"/>
+    <rect x="108" y="36" width="68" height="68" fill="#ff9fb2" transform="rotate(6 142 70)"/><path d="M122 58h40M122 72h32M122 86h36" stroke="#b44" stroke-width="3" opacity=".5" transform="rotate(6 142 70)"/>
+    <rect x="40" y="140" width="120" height="70" fill="#9ed0ff" transform="rotate(3 100 175)"/><text x="100" y="182" font-size="18" font-weight="800" fill="#1f2a55" text-anchor="middle" transform="rotate(3 100 175)">Sportfest!</text>
+    <circle cx="60" cy="30" r="6" fill="#e0474c"/><circle cx="142" cy="40" r="6" fill="#3d6df2"/><circle cx="100" cy="144" r="6" fill="#2e9e6b"/></g>`;
+  // Wanduhr rechts
+  s += `<g transform="translate(1482 150)"><circle r="70" cx="8" cy="10" fill="#000" opacity=".14" filter="url(#weich2)"/><circle r="70" fill="#3d6df2"/><circle r="58" fill="url(#uhrglas)"/>
+    ${Array.from({ length: 12 }, (_, i) => `<rect x="-2" y="-52" width="4" height="${i % 3 ? 7 : 12}" rx="2" fill="#1f2a55" transform="rotate(${i * 30})"/>`).join('')}
+    <path d="M0 0L0 -34" stroke="#1f2a55" stroke-width="6" stroke-linecap="round" transform="rotate(300)"/><path d="M0 0L0 -46" stroke="#1f2a55" stroke-width="4" stroke-linecap="round" transform="rotate(60)"/><circle r="5" fill="#e0474c"/></g>`;
+  // Tisch in Perspektive: Maserung läuft zum Fluchtpunkt
+  s += `<rect y="590" width="${BW}" height="378" fill="url(#holz)"/>`;
+  for (let i = 0; i < 34; i++) {
+    const x = -200 + i * 60 + (i * 37 % 23), xf = 800 + (x - 800) * 1.9, w = 1 + (i * 7 % 3);
+    s += `<path d="M${x} 590 C ${x + 10} 700, ${xf - 20} 860, ${xf} 968" stroke="#8b5424" stroke-opacity="${0.06 + (i % 4) * 0.025}" stroke-width="${w}" fill="none"/>`;
+  }
+  s += `<rect y="590" width="${BW}" height="378" fill="url(#holzglanz)"/><rect y="590" width="${BW}" height="26" fill="#5a3510" opacity=".16" filter="url(#weich2)"/>
+    <rect y="966" width="${BW}" height="34" fill="url(#kante)"/><rect y="966" width="${BW}" height="3" fill="#f3c48c"/>`;
+  // Heftstapel vorne links (steht vor der Laptopecke)
+  const heft = (y, farbe, dreh) => `<g transform="rotate(${dreh} 110 ${y})"><path d="M-20 ${y} L200 ${y - 14} L236 ${y + 58} L6 ${y + 76} Z" fill="#f4f1ea" stroke="#1f2a55" stroke-opacity=".3" stroke-width="2"/><path d="M-20 ${y - 8} L200 ${y - 22} L236 ${y + 50} L6 ${y + 68} Z" fill="${farbe}" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/></g>`;
+  // Stiftebecher links hinten
+  s += `<ellipse cx="118" cy="742" rx="70" ry="16" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>`;
+  s += `<g><path d="M92 640 L70 540" stroke="#ffc53d" stroke-width="12" stroke-linecap="round"/><path d="M70 540 l-4 -18 10 4z" fill="#1f2a55"/>
+    <path d="M118 640 L126 530" stroke="#3d6df2" stroke-width="12" stroke-linecap="round"/><path d="M126 530 l2 -18 7 12z" fill="#1f2a55"/>
+    <path d="M140 640 L170 552" stroke="#e0474c" stroke-width="12" stroke-linecap="round"/><path d="M170 552 l6 -16 4 14z" fill="#1f2a55"/>
+    <rect x="94" y="546" width="16" height="96" rx="3" fill="#fff" stroke="#1f2a55" stroke-opacity=".4" transform="rotate(8 102 594)"/></g>`;
+  s += zylinder('becher', 118, 616, 104, 118, '#ff9d8f', '#d9574a') + `<ellipse cx="118" cy="616" rx="52" ry="17.7" fill="#b8473c" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/><path d="M78 660 q40 12 80 0" stroke="#fff" stroke-opacity=".5" stroke-width="5" fill="none"/>`;
+  // Pflanze rechts hinten
+  s += `<ellipse cx="1488" cy="728" rx="76" ry="16" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>
+    <g stroke="#1f2a55" stroke-opacity=".45" stroke-width="2.5" stroke-linejoin="round"><path d="M1488 610 C1450 560 1400 560 1380 520 C1430 520 1470 540 1488 600Z" fill="#35b06f"/><path d="M1488 606 C1500 540 1540 500 1590 490 C1580 540 1540 580 1488 606Z" fill="#43c07e"/><path d="M1488 604 C1470 540 1480 480 1500 440 C1524 490 1520 560 1488 604Z" fill="#2e9e6b"/><path d="M1488 608 C1462 580 1440 540 1446 500 C1478 530 1490 570 1488 608Z" fill="#4fcf8a"/></g>`;
+  s += zylinder('topf', 1488, 612, 128, 98, '#ffd66b', '#e8a600') + `<ellipse cx="1488" cy="612" rx="64" ry="21.8" fill="#6b4a2a" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/>
+    <circle cx="1466" cy="668" r="5" fill="#1f2a55"/><circle cx="1510" cy="668" r="5" fill="#1f2a55"/><path d="M1474 684q14 10 28 0" stroke="#1f2a55" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  // Schatten des Laptops
+  s += `<path d="M ${DECK.xh1 - 10} ${DECK.yh + 8} L ${DECK.xh2 + 10} ${DECK.yh + 8} L ${DECK.xv2 + 26} ${DECK.yv + 28} L ${DECK.xv1 - 26} ${DECK.yv + 28} Z" fill="#3b2208" opacity=".42" filter="url(#weich)"/>
+    <rect x="300" y="40" width="1060" height="660" rx="30" fill="#2b4a3c" opacity=".18" filter="url(#weich)" transform="translate(22 18)"/>`;
+  // Deckel: Aluminiumrand, schwarzer Rahmen, Kamera
+  s += `<rect x="262" y="16" width="1076" height="692" rx="28" fill="url(#rand)"/><rect x="267" y="20" width="1066" height="684" rx="24" fill="url(#rahmen)"/>
+    <path d="M 290 24 L 700 24 L 470 700 L 272 700 Z" fill="#fff" opacity=".035"/>
+    <circle cx="800" cy="31" r="4.5" fill="#39425a"/><circle cx="800" cy="31" r="1.8" fill="#6b7bb0"/>
+    <rect x="${SCHIRM.x - 2}" y="${SCHIRM.y - 2}" width="${SCHIRM.w + 4}" height="${SCHIRM.h + 4}" rx="8" fill="#0d1018"/>`;
+  // Scharnier
+  s += `<rect x="296" y="700" width="1008" height="16" rx="7" fill="#2a303f"/><rect x="296" y="701" width="1008" height="3" rx="1.5" fill="#4a5368"/>`;
+  // Handablage mit Vorderkante und Daumenmulde
+  const [vl] = DP(0, 1), [vr] = DP(1, 1);
+  s += `<path d="M ${DECK.xh1} ${DECK.yh} L ${DECK.xh2} ${DECK.yh} L ${DECK.xv2 - 6} ${DECK.yv - 8} Q ${DECK.xv2} ${DECK.yv} ${DECK.xv2 - 14} ${DECK.yv} L ${DECK.xv1 + 14} ${DECK.yv} Q ${DECK.xv1} ${DECK.yv} ${DECK.xv1 + 6} ${DECK.yv - 8} Z" fill="url(#alu)" stroke="#a7afbd" stroke-width="1.5"/>
+    <path d="M ${DECK.xh1} ${DECK.yh} L ${DECK.xh2} ${DECK.yh} L ${DECK.xv2 - 6} ${DECK.yv - 8} L ${DECK.xv1 + 6} ${DECK.yv - 8} Z" fill="url(#aluglanz)" opacity=".7"/>
+    <path d="M ${vl + 14} ${DECK.yv} L ${vr - 14} ${DECK.yv} Q ${vr - 8} ${DECK.yv + 22} ${vr - 26} ${DECK.yv + 24} L ${vl + 26} ${DECK.yv + 24} Q ${vl + 8} ${DECK.yv + 22} ${vl + 14} ${DECK.yv} Z" fill="url(#front)"/>
+    <path d="M 740 ${DECK.yv} Q 800 ${DECK.yv + 14} 860 ${DECK.yv}" fill="#7c8494"/>`;
+  // Tastaturmulde und Lautsprecher
+  s += `<polygon points="${quad(0.068, 0.055, 0.932, 0.655)}" fill="#cbd1db"/><polygon points="${quad(0.068, 0.055, 0.932, 0.075)}" fill="#aab2c0"/>`;
+  for (const [ua, ub] of [[0.022, 0.056], [0.944, 0.978]])
+    for (let r = 0; r < 14; r++) for (let c = 0; c < 4; c++) { const [x, y] = DP(ua + (ub - ua) * (c + 0.5) / 4, 0.08 + r * 0.04); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.6 + 0.8 * (0.08 + r * 0.04)).toFixed(2)}" fill="#9aa2b1"/>`; }
+  // Tasten als Kappen mit Vorderseite
+  const u0 = 0.075, u1 = 0.925, v0 = 0.07, v1 = 0.64, rh = (v1 - v0) / REIHEN.length, sp = 0.0035;
   REIHEN.forEach((reihe, r) => {
     const summe = reihe.reduce((a, k) => a + (k[2] || 1), 0);
     let u = u0;
-    const va = v0 + r * rh + spalt * 1.5, vb = v0 + (r + 1) * rh - spalt * 1.5;
+    const va = v0 + r * rh + sp * 2, vb = v0 + (r + 1) * rh - sp * 3.2;
     reihe.forEach(([lab, code, br = 1, sh = '', ag = '']) => {
-      const ub = u + (u1 - u0) * br / summe;
-      const [cx, cy] = P((u + ub) / 2, (va + vb) / 2);
-      const breitePx = P(ub, vb)[0] - P(u, vb)[0];
-      const fs = (P(0.5, vb)[1] - P(0.5, va)[1]) * 0.5;
-      h += `<polygon class="taste" data-code="${code}" points="${poly(u + spalt, va, ub - spalt, vb)}"/>`;
-      // Wie auf echten Tasten: Umschalt-Zeichen oben links, Grundzeichen unten links, AltGr unten rechts
-      const lx = sh ? cx - breitePx * 0.22 : cx, ly = sh ? cy + fs * 0.62 : cy + fs * 0.36;
-      if (lab) h += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${(lab.length > 2 ? fs * 0.62 : sh ? fs * 0.78 : fs).toFixed(1)}" text-anchor="middle">${esc(lab)}</text>`;
-      if (sh) h += `<text class="klein" x="${lx.toFixed(1)}" y="${(cy - fs * 0.12).toFixed(1)}" font-size="${(fs * 0.66).toFixed(1)}" text-anchor="middle">${esc(sh)}</text>`;
-      if (ag) h += `<text class="altgr" x="${(cx + breitePx * 0.28).toFixed(1)}" y="${(cy + fs * 0.62).toFixed(1)}" font-size="${(fs * 0.62).toFixed(1)}" text-anchor="middle">${esc(ag)}</text>`;
+      const ub = u + (u1 - u0) * br / summe, ua = u + sp, uz = ub - sp;
+      const tl = DP(ua, va), tr = DP(uz, va), brr = DP(uz, vb), bl = DP(ua, vb), hoch = 4 + 3 * vb;
+      const [cx, cy] = DP((ua + uz) / 2, (va + vb) / 2), breite = brr[0] - bl[0], fs = (bl[1] - tl[1]) * 0.52;
+      const lx = sh ? cx - breite * 0.22 : cx;
+      s += `<g class="taste" data-code="${code}">
+        <polygon class="seite" points="${pts([bl, brr, [brr[0], brr[1] + hoch], [bl[0], bl[1] + hoch]])}"/>
+        <polygon class="kopf" points="${pts([tl, tr, brr, bl])}"/>
+        ${lab ? `<text x="${lx.toFixed(1)}" y="${(sh ? cy + fs * 0.62 : cy + fs * 0.36).toFixed(1)}" font-size="${(lab.length > 2 ? fs * 0.62 : sh ? fs * 0.78 : fs).toFixed(1)}" text-anchor="middle">${esc(lab)}</text>` : ''}
+        ${sh ? `<text class="klein" x="${lx.toFixed(1)}" y="${(cy - fs * 0.12).toFixed(1)}" font-size="${(fs * 0.66).toFixed(1)}" text-anchor="middle">${esc(sh)}</text>` : ''}
+        ${ag ? `<text class="altgr" x="${(cx + breite * 0.28).toFixed(1)}" y="${(cy + fs * 0.62).toFixed(1)}" font-size="${(fs * 0.62).toFixed(1)}" text-anchor="middle">${esc(ag)}</text>` : ''}</g>`;
       u = ub;
     });
   });
-  h += `<polygon class="pad" id="pad" points="${poly(0.37, 0.69, 0.63, 0.95)}"/>`;
-  // Aufkleber: der TrappiPost-Wagen auf der Handballenablage
-  const [ax, ay] = P(0.16, 0.8), gr = L * 0.075;
-  h += `<g transform="translate(${ax - gr / 2} ${ay - gr * 0.38}) rotate(-6 ${gr / 2} ${gr * 0.35})"><rect x="-4" y="-4" width="${gr + 8}" height="${gr * 0.7 + 8}" rx="8" fill="#fff" stroke="#b8bfcc"/><svg width="${gr}" height="${gr * 0.7}" viewBox="0 0 80 56">${WAGEN_SVG}</svg></g>`;
-  svg.innerHTML = h;
+  // Touchpad, eingelassen
+  s += `<polygon points="${quad(0.365, 0.695, 0.635, 0.955)}" fill="#b9c0cc"/><polygon class="pad" id="pad" points="${quad(0.367, 0.7, 0.633, 0.95)}"/>`;
+  // Aufkleber auf der Handablage
+  const [ax, ay] = DP(0.15, 0.82);
+  s += `<g transform="translate(${ax - 58} ${ay - 34}) rotate(-7 58 34)"><rect x="3" y="5" width="116" height="80" rx="12" fill="#000" opacity=".12" filter="url(#weich2)"/><rect width="116" height="80" rx="12" fill="#fff" stroke="#c9cfda"/><svg x="8" y="6" width="100" height="70" viewBox="0 0 80 56">${WAGEN_SVG}</svg></g>`;
+  // Heftstapel und Kakaotasse vorne (vor dem Laptop)
+  s += `<ellipse cx="130" cy="990" rx="140" ry="18" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>` + heft(930, '#5b8def', -3) + heft(912, '#ff7a6b', 2) + heft(894, '#34c3c3', -1);
+  s += `<ellipse cx="1500" cy="988" rx="80" ry="16" fill="#3b2208" opacity=".38" filter="url(#weich2)"/>
+    <path d="M1552 900 q46 4 40 40 q-6 30 -44 24" stroke="#e8eef8" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M1552 900 q46 4 40 40 q-6 30 -44 24" stroke="#1f2a55" stroke-opacity=".3" stroke-width="2" fill="none"/>`;
+  s += zylinder('tasse', 1500, 872, 120, 110, '#ffffff', '#c9d3e3') + `<ellipse cx="1500" cy="872" rx="60" ry="20.4" fill="#7a4a2c" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/><ellipse cx="1492" cy="868" rx="30" ry="8" fill="#9a6a44"/>
+    <path d="M1486 846 q-12 -20 4 -36 q12 -14 0 -30" stroke="#fff" stroke-width="6" fill="none" opacity=".7" stroke-linecap="round"/><path d="M1516 846 q-10 -18 4 -32" stroke="#fff" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>
+    <path d="M1478 920 l6 12 13 2 -9 9 2 13 -12 -6 -12 6 2 -13 -9 -9 13 -2z" fill="#ffc53d" stroke="#1f2a55" stroke-opacity=".4" stroke-width="2"/>`;
+  document.getElementById('welt').innerHTML = s;
 }
-function setzeSprites() {
-  const { L, lidH, D, Wb, x0, y0 } = GEO;
-  const vw = innerWidth, vh = innerHeight;
-  const seite = (vw - Wb) / 2, deckUnten = y0 + lidH + D, tischOben = y0 + lidH * 0.8;
-  const setz = (id, links, oben, breite) => { const e = document.getElementById(id); e.style.display = breite < 50 ? 'none' : 'block'; Object.assign(e.style, { left: links + 'px', top: oben + 'px', width: breite + 'px' }); };
-  const bm = Math.min(200, seite * 0.85);
-  setz('s-maeppchen', seite / 2 - bm / 2, deckUnten - bm * 0.5, bm);
-  const bh = Math.min(210, seite * 0.8);
-  setz('s-heft', seite / 2 - bh / 2, Math.max(tischOben + 6, deckUnten - bm * 0.5 - bh * 0.78), bh);
-  const rechts = vw - seite;
-  const ba = Math.min(66, seite * 0.3);
-  setz('s-apfel', rechts + seite * 0.62 - ba / 2, deckUnten - ba * 0.95, ba);
-  const bf = Math.min(74, seite * 0.3);
-  setz('s-flasche', rechts + seite * 0.22, deckUnten - bf * 2.4, bf);
-  const bp = Math.min(150, seite * 0.62);
-  setz('s-pflanze', rechts + seite * 0.5, tischOben - bp * 1.2, bp);
-  const z = document.getElementById('zettel'), frei = vw - (x0 + L);
-  z.style.display = frei < 120 ? 'none' : 'block';
-  Object.assign(z.style, { left: (x0 + L + Math.min(24, frei * 0.1)) + 'px', top: (y0 + lidH * 0.12) + 'px', width: Math.min(160, frei - 40) + 'px' });
+let zoom = localStorage.getItem('trappipost-zoom') === '1';
+let BUEHNE = { k: 1, ox: 0, oy: 0 };
+function layout() {
+  const vw = innerWidth, vh = innerHeight, k = Math.min(vw / BW, vh / BH);
+  BUEHNE = { k, ox: (vw - BW * k) / 2, oy: (vh - BH * k) / 2 };
+  const b = document.getElementById('buehne');
+  b.style.transform = `translate(${BUEHNE.ox}px, ${BUEHNE.oy}px) scale(${k})`;
+  // Außerhalb der Bühne: Wand oben, Tisch unten, auf gleicher Höhe wie in der Bühne
+  const kante = BUEHNE.oy + 590 * k, vorn = BUEHNE.oy + 966 * k;
+  document.getElementById('szene').style.background = `linear-gradient(#cdeee0 0 ${kante}px, #dea566 ${kante}px ${vorn}px, #8f5a2c ${vorn}px)`;
+  const sk = Math.min(1, SCHIRM.w / 1100, SCHIRM.h / 660);
+  Object.assign(document.getElementById('app').style, { left: SCHIRM.x + 'px', top: SCHIRM.y + 'px', width: SCHIRM.w / sk + 'px', height: SCHIRM.h / sk + 'px', transform: `scale(${sk})` });
+  kamera(false);
 }
 function kamera(animiert) {
   const k = document.getElementById('kamera');
   if (!animiert) k.style.transition = 'none';
-  if (zoom && GEO) {
-    const { x, y, w, h } = GEO.schirm;
-    const Z = Math.min((innerWidth - 16) / w, (innerHeight - 16) / h);
-    k.style.transform = `translate(${innerWidth / 2 - Z * (x + w / 2)}px, ${innerHeight / 2 - Z * (y + h / 2)}px) scale(${Z})`;
+  if (zoom) {
+    const { k: s, ox, oy } = BUEHNE, vw = innerWidth, vh = innerHeight;
+    const Z = Math.min((vw - 12) / (SCHIRM.w * s), (vh - 12) / (SCHIRM.h * s));
+    const cx = (vw / 2 - ox) / s, cy = (vh / 2 - oy) / s;
+    k.style.transform = `translate(${cx - Z * (SCHIRM.x + SCHIRM.w / 2)}px, ${cy - Z * (SCHIRM.y + SCHIRM.h / 2)}px) scale(${Z})`;
   } else k.style.transform = 'none';
   if (!animiert) { void k.offsetWidth; k.style.transition = ''; }
   const lupe = '<svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>';
@@ -939,15 +981,16 @@ function kamera(animiert) {
 }
 document.addEventListener('click', (e) => { if (e.target.closest('#zoom')) { zoom = !zoom; localStorage.setItem('trappipost-zoom', zoom ? '1' : '0'); kamera(true); } });
 // Tasten und Touchpad leuchten mit
-function taste(code, an) { document.querySelectorAll('#deck .taste').forEach(t => { if (t.dataset.code.split(' ').includes(code)) t.classList.toggle('an', an); }); }
+function taste(code, an) { if (!code) return; document.querySelectorAll('#welt .taste').forEach(t => { if (t.dataset.code.split(' ').includes(code)) t.classList.toggle('an', an); }); }
 addEventListener('keydown', (e) => taste(e.code || (e.key === 'AltGraph' ? 'AltRight' : ''), true));
 addEventListener('keyup', (e) => taste(e.code || (e.key === 'AltGraph' ? 'AltRight' : ''), false));
-addEventListener('blur', () => document.querySelectorAll('#deck .taste.an').forEach(t => t.classList.remove('an')));
+addEventListener('blur', () => document.querySelectorAll('#welt .taste.an').forEach(t => t.classList.remove('an')));
 addEventListener('pointerdown', (e) => { if (e.target.closest('#app')) { const p = document.getElementById('pad'); if (p) { p.classList.add('an'); setTimeout(() => p.classList.remove('an'), 180); } } });
 addEventListener('resize', layout);
 
 // ——— Start ———
 document.getElementById('logo').innerHTML = WAGEN_SVG;
+baueWelt();
 layout();
 S = laden();
 if (S && S.mails) { render(); if (S.auftrag >= AUFTRAEGE.length && S.endlos && S.endlos.laeuft && !S.endlos.spec) starteAuftrag(); } else startDialog();
