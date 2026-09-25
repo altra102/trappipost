@@ -844,6 +844,76 @@ function zylinder(id, cx, yOben, b, h, hell, dunkel) {
   return `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${dunkel}"/><stop offset=".35" stop-color="${hell}"/><stop offset=".55" stop-color="${hell}"/><stop offset="1" stop-color="${dunkel}"/></linearGradient>
     <path d="M${cx - rx} ${yOben} v${h} a${rx} ${ry} 0 0 0 ${b} 0 v${-h} z" fill="url(#${id})" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/>`;
 }
+// ——— Deko auf dem Tisch: Zylinder mit Öffnung, Stifte, Blätter, Hefte ———
+const T = '#1f2a55';
+function zylGrad(id, hell, mitte, dunkel) {
+  return `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${dunkel}"/><stop offset=".22" stop-color="${mitte}"/><stop offset=".36" stop-color="${hell}"/><stop offset=".5" stop-color="${mitte}"/><stop offset="1" stop-color="${dunkel}"/></linearGradient>`;
+}
+// Körper eines Zylinders: oben die vordere Hälfte der Öffnung, unten der Boden
+function zylKoerper(id, cx, y, rx, ry, h) {
+  return `<path d="M${cx - rx} ${y} A${rx} ${ry} 0 0 0 ${cx + rx} ${y} L${cx + rx} ${y + h} A${rx} ${ry} 0 0 1 ${cx - rx} ${y + h} Z" fill="url(#${id})" stroke="${T}" stroke-width="2.5" stroke-linejoin="round"/>`;
+}
+function stift(bx, by, laenge, grad, farbe, dunkel, radiergummi) {
+  const b = 15, spitze = 26;
+  let g = `<g transform="rotate(${grad} ${bx} ${by})">
+    <rect x="${bx - b / 2}" y="${by - laenge}" width="${b}" height="${laenge}" fill="${farbe}" stroke="${T}" stroke-width="2"/>
+    <rect x="${bx}" y="${by - laenge}" width="${b / 2}" height="${laenge}" fill="${dunkel}" opacity=".55"/>`;
+  if (radiergummi) g += `<rect x="${bx - b / 2}" y="${by - laenge - 10}" width="${b}" height="10" fill="#c9ced8" stroke="${T}" stroke-width="2"/><path d="M${bx - b / 2} ${by - laenge - 10} v-8 a4 4 0 0 1 4 -4 h${b - 8} a4 4 0 0 1 4 4 v8 z" fill="#ff9fb2" stroke="${T}" stroke-width="2"/>`;
+  else g += `<path d="M${bx - b / 2} ${by - laenge} L${bx} ${by - laenge - spitze} L${bx + b / 2} ${by - laenge} Z" fill="#f3d2a2" stroke="${T}" stroke-width="2" stroke-linejoin="round"/><path d="M${bx - 3.2} ${by - laenge - spitze * 0.62} L${bx} ${by - laenge - spitze} L${bx + 3.2} ${by - laenge - spitze * 0.62} Z" fill="${T}"/>`;
+  return g + '</g>';
+}
+function blatt(x, y, laenge, grad, farbe, rippe) {
+  const w = laenge * 0.34;
+  return `<g transform="rotate(${grad} ${x} ${y})"><path d="M${x} ${y} C${x + w} ${y - laenge * 0.25} ${x + w * 0.85} ${y - laenge * 0.8} ${x} ${y - laenge} C${x - w * 0.85} ${y - laenge * 0.8} ${x - w} ${y - laenge * 0.25} ${x} ${y} Z" fill="${farbe}" stroke="${T}" stroke-width="2.2" stroke-linejoin="round"/><path d="M${x} ${y - 4} Q${x + 3} ${y - laenge * 0.5} ${x} ${y - laenge * 0.9}" stroke="${rippe}" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>`;
+}
+function heftQuader(x, y, b, t, h, farbe, dunkel, grad) {
+  // liegt flach: Oberseite nach hinten leicht schmaler, vorne Schnitt mit Seiten
+  const ob = [[x, y], [x + b, y], [x + b - 10, y - t], [x + 12, y - t]];
+  return `<g transform="rotate(${grad} ${x + b / 2} ${y})">
+    <path d="M${x + b} ${y} L${x + b - 10} ${y - t} L${x + b - 10} ${y - t + h} L${x + b} ${y + h} Z" fill="${dunkel}" stroke="${T}" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="${x}" y="${y}" width="${b}" height="${h}" fill="#fbf8f0" stroke="${T}" stroke-width="2"/>
+    <path d="M${x + 4} ${y + h * 0.4}h${b - 8}M${x + 4} ${y + h * 0.7}h${b - 8}" stroke="#d9d3c3" stroke-width="1.5"/>
+    <rect x="${x}" y="${y}" width="${b}" height="3.5" fill="${farbe}"/><rect x="${x}" y="${y + h - 3.5}" width="${b}" height="3.5" fill="${farbe}"/>
+    <polygon points="${ob.map(p => p.join(',')).join(' ')}" fill="${farbe}" stroke="${T}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${x + 18} ${y - 5} L${x + b - 16} ${y - 5}" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/></g>`;
+}
+function stiftebecher(cx, boden) {
+  const rx = 50, ry = 15, h = 112, y = boden - h;
+  let s = `<defs>${zylGrad('becherG', '#ffb4a8', '#ff8b7c', '#d9574a')}</defs>
+    <ellipse cx="${cx + 8}" cy="${boden + 4}" rx="${rx + 22}" ry="${ry + 4}" fill="#3b2208" opacity=".32" filter="url(#weich2)"/>
+    <ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="#a8423a" stroke="${T}" stroke-width="2.5"/>
+    <ellipse cx="${cx}" cy="${y + 2}" rx="${rx - 7}" ry="${ry - 5}" fill="#5e1f1a"/>`;
+  s += `<g transform="rotate(10 ${cx + 6} ${y + 30})"><rect x="${cx - 2}" y="${y - 88}" width="24" height="118" fill="#fff" stroke="${T}" stroke-width="2"/>${Array.from({ length: 9 }, (_, i) => `<path d="M${cx - 2} ${y - 80 + i * 12}h${i % 2 ? 7 : 12}" stroke="${T}" stroke-width="1.6"/>`).join('')}</g>`;
+  s += stift(cx - 26, y + 20, 128, -16, '#ffc53d', '#e39a00', false) + stift(cx - 4, y + 20, 150, -3, '#3d6df2', '#2448b8', true) + stift(cx + 22, y + 20, 118, 17, '#e0474c', '#a92a2f', false) + stift(cx + 8, y + 20, 100, 6, '#2e9e6b', '#1f7550', false);
+  s += zylKoerper('becherG', cx, y, rx, ry, h) + `<path d="M${cx - rx + 14} ${y + 38} Q${cx - rx + 10} ${y + 70} ${cx - rx + 16} ${y + 96}" stroke="#fff" stroke-opacity=".55" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M${cx - rx} ${y + 50} A${rx} ${ry} 0 0 0 ${cx + rx} ${y + 50}" stroke="#fff" stroke-opacity=".45" stroke-width="5" fill="none"/>`;
+  return s;
+}
+function pflanze(cx, boden) {
+  const rx = 62, ry = 17, h = 92, y = boden - h;
+  let s = `<defs>${zylGrad('topfG', '#ffe9a0', '#ffd24d', '#d99400')}${zylGrad('randG', '#fff1bf', '#ffdd6b', '#e0a200')}</defs>
+    <ellipse cx="${cx + 8}" cy="${boden + 4}" rx="${rx + 26}" ry="${ry + 4}" fill="#3b2208" opacity=".32" filter="url(#weich2)"/>`;
+  const hinten = [[-54, 118, -58], [-30, 150, -30], [0, 170, -6], [30, 150, 26], [54, 120, 56]];
+  const vorn = [[-40, 110, -72], [-14, 132, -40], [14, 136, 36], [42, 110, 70]];
+  s += `<ellipse cx="${cx}" cy="${y - 8}" rx="${rx + 6}" ry="${ry + 3}" fill="#e0a200" stroke="${T}" stroke-width="2.5"/><ellipse cx="${cx}" cy="${y - 7}" rx="${rx - 4}" ry="${ry - 3}" fill="#6b4a2a"/>`;
+  s += hinten.map(([dx, l, g]) => blatt(cx + dx * 0.4, y - 6, l, g, '#2e9e6b', '#1c6e49')).join('');
+  s += vorn.map(([dx, l, g]) => blatt(cx + dx * 0.35, y - 4, l, g, '#43c07e', '#2a8a57')).join('');
+  s += zylKoerper('topfG', cx, y, rx - 4, ry, h) + `<path d="M${cx - rx - 6} ${y - 8} A${rx + 6} ${ry + 3} 0 0 0 ${cx + rx + 6} ${y - 8} L${cx + rx + 6} ${y + 10} A${rx + 6} ${ry + 3} 0 0 1 ${cx - rx - 6} ${y + 10} Z" fill="url(#randG)" stroke="${T}" stroke-width="2.5"/>
+    <circle cx="${cx - 20}" cy="${y + 48}" r="5.5" fill="${T}"/><circle cx="${cx + 20}" cy="${y + 48}" r="5.5" fill="${T}"/><path d="M${cx - 13} ${y + 64} q13 11 26 0" stroke="${T}" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="${cx - 32}" cy="${y + 60}" rx="7" ry="4.5" fill="#ff9d8f" opacity=".7"/><ellipse cx="${cx + 32}" cy="${y + 60}" rx="7" ry="4.5" fill="#ff9d8f" opacity=".7"/>`;
+  return s;
+}
+function kakao(cx, boden) {
+  const rx = 42, ry = 12, h = 74, y = boden - h;
+  let s = `<defs>${zylGrad('tasseG', '#ffffff', '#f1f4f9', '#c3ccdb')}</defs>
+    <ellipse cx="${cx + 8}" cy="${boden + 3}" rx="${rx + 28}" ry="${ry + 3}" fill="#3b2208" opacity=".32" filter="url(#weich2)"/>
+    <path d="M${cx + rx - 4} ${y + 16} q40 2 36 30 q-4 24 -36 22" stroke="${T}" stroke-width="17" fill="none" stroke-linecap="round"/><path d="M${cx + rx - 4} ${y + 16} q40 2 36 30 q-4 24 -36 22" stroke="#f1f4f9" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <ellipse cx="${cx}" cy="${y}" rx="${rx}" ry="${ry}" fill="#f1f4f9" stroke="${T}" stroke-width="2.5"/><ellipse cx="${cx}" cy="${y + 2}" rx="${rx - 5}" ry="${ry - 3.5}" fill="#7a4a2c"/><ellipse cx="${cx - 8}" cy="${y + 1}" rx="14" ry="3.5" fill="#a4704a"/>`;
+  s += zylKoerper('tasseG', cx, y, rx, ry, h) + `<path d="M${cx} ${y + 26} l6 12 13 2 -9 9 2 13 -12 -6 -12 6 2 -13 -9 -9 13 -2z" fill="#ffc53d" stroke="${T}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M${cx - 10} ${y - 14} q-12 -18 2 -32 q12 -12 0 -28" stroke="#fff" stroke-width="6" fill="none" opacity=".8" stroke-linecap="round"/><path d="M${cx + 14} ${y - 12} q-10 -16 4 -30" stroke="#fff" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>`;
+  return s;
+}
+
 function baueWelt() {
   let s = `<defs>
     <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
@@ -884,20 +954,8 @@ function baueWelt() {
   }
   s += `<rect x="-4000" y="590" width="9600" height="378" fill="url(#holzglanz)"/><rect x="-4000" y="590" width="9600" height="26" fill="#5a3510" opacity=".16"/>
     <rect x="-4000" y="966" width="9600" height="3000" fill="url(#kante)"/><rect x="-4000" y="966" width="9600" height="3" fill="#f3c48c"/>`;
-  // Heftstapel vorne links (steht vor der Laptopecke)
-  const heft = (y, farbe, dreh) => `<g transform="rotate(${dreh} 110 ${y})"><path d="M-20 ${y} L200 ${y - 14} L236 ${y + 58} L6 ${y + 76} Z" fill="#f4f1ea" stroke="#1f2a55" stroke-opacity=".3" stroke-width="2"/><path d="M-20 ${y - 8} L200 ${y - 22} L236 ${y + 50} L6 ${y + 68} Z" fill="${farbe}" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/></g>`;
-  // Stiftebecher links hinten
-  s += `<ellipse cx="118" cy="742" rx="70" ry="16" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>`;
-  s += `<g><path d="M92 640 L70 540" stroke="#ffc53d" stroke-width="12" stroke-linecap="round"/><path d="M70 540 l-4 -18 10 4z" fill="#1f2a55"/>
-    <path d="M118 640 L126 530" stroke="#3d6df2" stroke-width="12" stroke-linecap="round"/><path d="M126 530 l2 -18 7 12z" fill="#1f2a55"/>
-    <path d="M140 640 L170 552" stroke="#e0474c" stroke-width="12" stroke-linecap="round"/><path d="M170 552 l6 -16 4 14z" fill="#1f2a55"/>
-    <rect x="94" y="546" width="16" height="96" rx="3" fill="#fff" stroke="#1f2a55" stroke-opacity=".4" transform="rotate(8 102 594)"/></g>`;
-  s += zylinder('becher', 118, 616, 104, 118, '#ff9d8f', '#d9574a') + `<ellipse cx="118" cy="616" rx="52" ry="17.7" fill="#b8473c" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/><path d="M78 660 q40 12 80 0" stroke="#fff" stroke-opacity=".5" stroke-width="5" fill="none"/>`;
-  // Pflanze rechts hinten
-  s += `<ellipse cx="1488" cy="728" rx="76" ry="16" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>
-    <g stroke="#1f2a55" stroke-opacity=".45" stroke-width="2.5" stroke-linejoin="round"><path d="M1488 610 C1450 560 1400 560 1380 520 C1430 520 1470 540 1488 600Z" fill="#35b06f"/><path d="M1488 606 C1500 540 1540 500 1590 490 C1580 540 1540 580 1488 606Z" fill="#43c07e"/><path d="M1488 604 C1470 540 1480 480 1500 440 C1524 490 1520 560 1488 604Z" fill="#2e9e6b"/><path d="M1488 608 C1462 580 1440 540 1446 500 C1478 530 1490 570 1488 608Z" fill="#4fcf8a"/></g>`;
-  s += zylinder('topf', 1488, 612, 128, 98, '#ffd66b', '#e8a600') + `<ellipse cx="1488" cy="612" rx="64" ry="21.8" fill="#6b4a2a" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/>
-    <circle cx="1466" cy="668" r="5" fill="#1f2a55"/><circle cx="1510" cy="668" r="5" fill="#1f2a55"/><path d="M1474 684q14 10 28 0" stroke="#1f2a55" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  // Stiftebecher links hinten, Pflanze rechts hinten
+  s += stiftebecher(128, 716) + pflanze(1478, 700);
   // Schatten des Laptops
   s += `<path d="M ${DECK.xh1 - 10} ${DECK.yh + 8} L ${DECK.xh2 + 10} ${DECK.yh + 8} L ${DECK.xv2 + 26} ${DECK.yv + 28} L ${DECK.xv1 - 26} ${DECK.yv + 28} Z" fill="#3b2208" opacity=".42" filter="url(#weich)"/>
     <rect x="300" y="40" width="1060" height="660" rx="30" fill="#2b4a3c" opacity=".18" filter="url(#weich)" transform="translate(22 18)"/>`;
@@ -943,13 +1001,10 @@ function baueWelt() {
   // Aufkleber auf der Handablage
   const [ax, ay] = DP(0.15, 0.82);
   s += `<g transform="translate(${ax - 58} ${ay - 34}) rotate(-7 58 34)"><rect x="3" y="5" width="116" height="80" rx="12" fill="#000" opacity=".12" filter="url(#weich2)"/><rect width="116" height="80" rx="12" fill="#fff" stroke="#c9cfda"/><svg x="8" y="6" width="100" height="70" viewBox="0 0 80 56">${WAGEN_SVG}</svg></g>`;
-  // Heftstapel und Kakaotasse vorne (vor dem Laptop)
-  s += `<ellipse cx="130" cy="990" rx="140" ry="18" fill="#3b2208" opacity=".35" filter="url(#weich2)"/>` + heft(930, '#5b8def', -3) + heft(912, '#ff7a6b', 2) + heft(894, '#34c3c3', -1);
-  s += `<ellipse cx="1500" cy="988" rx="80" ry="16" fill="#3b2208" opacity=".38" filter="url(#weich2)"/>
-    <path d="M1552 900 q46 4 40 40 q-6 30 -44 24" stroke="#e8eef8" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M1552 900 q46 4 40 40 q-6 30 -44 24" stroke="#1f2a55" stroke-opacity=".3" stroke-width="2" fill="none"/>`;
-  s += zylinder('tasse', 1500, 872, 120, 110, '#ffffff', '#c9d3e3') + `<ellipse cx="1500" cy="872" rx="60" ry="20.4" fill="#7a4a2c" stroke="#1f2a55" stroke-opacity=".35" stroke-width="2"/><ellipse cx="1492" cy="868" rx="30" ry="8" fill="#9a6a44"/>
-    <path d="M1486 846 q-12 -20 4 -36 q12 -14 0 -30" stroke="#fff" stroke-width="6" fill="none" opacity=".7" stroke-linecap="round"/><path d="M1516 846 q-10 -18 4 -32" stroke="#fff" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>
-    <path d="M1478 920 l6 12 13 2 -9 9 2 13 -12 -6 -12 6 2 -13 -9 -9 13 -2z" fill="#ffc53d" stroke="#1f2a55" stroke-opacity=".4" stroke-width="2"/>`;
+  // Heftstapel links vorne und Kakaotasse rechts – ganz auf dem Tisch
+  s += `<ellipse cx="96" cy="950" rx="96" ry="14" fill="#3b2208" opacity=".32" filter="url(#weich2)"/>`
+    + heftQuader(8, 920, 164, 30, 14, '#5b8def', '#3f6fd0', -2) + heftQuader(12, 902, 156, 28, 13, '#ff7a6b', '#e0564a', 2) + heftQuader(18, 885, 146, 26, 12, '#34c3c3', '#249a9a', -1);
+  s += kakao(1505, 872);
   document.getElementById('welt').innerHTML = s;
 }
 let zoom = localStorage.getItem('trappipost-zoom') === '1';
