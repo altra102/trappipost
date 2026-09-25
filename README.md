@@ -1,5 +1,7 @@
 # Brieftaube – dein E-Mail-Programm zum Üben
 
+**Jetzt spielen:** https://altra102.github.io/brieftaube/
+
 Ein kinderfreundliches E-Mail-Programm für den Informatikunterricht (Klasse 5/6).
 Nichts wird wirklich verschickt: Alle Personen und Adressen sind erfunden.
 
@@ -22,9 +24,16 @@ Nach dem Senden prüft das Programm die Form: Adresse, Betreff, Anrede, Gruß, N
 und die verlangte Info. Es sagt, was noch fehlt. Eine falsche Adresse kommt als
 „Nicht zugestellt“ zurück.
 
+## Spiel auf Zeit
+
+Nach den zehn Aufträgen kommen endlos neue Aufgaben (antworten, neu schreiben,
+weiterleiten, löschen, archivieren, zurückholen, aufräumen), jede mit Countdown.
+Läuft die Zeit ab, ist ein Herz weg. Nach drei Herzen ist die Runde vorbei;
+„Nochmal“ startet neu, der Rekord bleibt.
+
 ## Technik
 
-Eine einzelne HTML-Datei ohne Abhängigkeiten. Der Stand wird im Browser gespeichert
+Eine einzelne HTML-Datei ohne Abhängigkeiten, alle Bilder als selbst gezeichnetes SVG. Der Stand wird im Browser gespeichert
 (`localStorage`, Schlüssel `brieftaube-v1`); „Von vorn“ setzt alles zurück.
 
 ## Lizenz

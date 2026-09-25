@@ -34,7 +34,7 @@ button { cursor: pointer; }
 svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* ——— Rahmen ——— */
-.app { height: 100vh; display: grid; grid-template-rows: auto 1fr; padding: 12px 14px 14px; gap: 12px; }
+.app-innen { height: 100%; display: grid; grid-template-rows: auto 1fr; padding: 12px 14px 14px; gap: 12px; }
 .kopf { display: flex; align-items: center; gap: 14px; padding: 2px 6px; }
 .marke { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.45rem; letter-spacing: .01em; }
 .marke svg { width: 44px; height: 44px; }
@@ -77,6 +77,15 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .rueck.fehlt ul { margin: 6px 0 0; padding-left: 20px; }
 .rueck.gut { background: #eaf8f1; box-shadow: inset 0 0 0 2px #bfe6d2; font-weight: 700; }
 
+.spielstand { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; font-weight: 800; }
+.herzen { display: flex; gap: 3px; }
+.herzen svg { width: 22px; height: 22px; }
+.spielstand, .uhr, .sek { margin-right: 76px; }
+.uhr { height: 12px; border-radius: 999px; background: var(--linie); overflow: hidden; margin: 4px 0 4px; }
+.uhr i { display: block; height: 100%; background: var(--gruen); border-radius: 999px; transition: width .25s linear; }
+.uhr.knapp i { background: var(--rot); }
+.sek { font-weight: 800; color: var(--tinte-2); font-size: .95rem; }
+.sek.knapp { color: var(--rot); }
 /* Briefmarke (Absender-Bild) */
 .briefmarke { --c: var(--blau); width: 48px; height: 48px; flex: none; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.05rem;
   background: var(--c); border-radius: 8px; outline: 3px dotted rgba(255,255,255,.9); outline-offset: -5px; box-shadow: 0 0 0 2px var(--c); }
@@ -140,9 +149,9 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .adressbuch small { display: block; color: var(--tinte-2); }
 
 /* Toast und Start */
-.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--tinte); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 700; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 24px rgba(31,42,85,.3); z-index: 20; animation: hoch .3s ease-out; }
+.toast { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--tinte); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 700; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 24px rgba(31,42,85,.3); z-index: 20; animation: hoch .3s ease-out; }
 @keyframes hoch { from { transform: translate(-50%, 20px); opacity: 0; } }
-.schleier { position: fixed; inset: 0; background: rgba(31,42,85,.35); display: grid; place-items: center; z-index: 30; padding: 20px; }
+.schleier { position: absolute; inset: 0; background: rgba(31,42,85,.35); display: grid; place-items: center; z-index: 30; padding: 20px; }
 .dialog { background: var(--papier); border-radius: 26px; padding: 30px 34px; width: min(520px, 100%); box-shadow: 0 24px 60px rgba(31,42,85,.3); }
 .dialog h1 { margin: 6px 0 8px; font-size: 1.8rem; }
 .dialog p { line-height: 1.5; color: var(--tinte-2); margin: 0 0 16px; }
@@ -152,12 +161,90 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .dialog .adr { margin-top: 10px; font-weight: 700; color: var(--tinte); min-height: 1.4em; }
 .dialog ul { line-height: 1.7; margin: 0 0 8px; padding-left: 22px; }
 
+/* ——— Szene: Laptop auf dem Schreibtisch ——— */
+body { background: #cdeee0; background-image: radial-gradient(circle, rgba(255,255,255,.55) 2px, transparent 2.5px); background-size: 34px 34px; overflow: hidden; }
+.szene { position: relative; height: 100vh; overflow: hidden; }
+.tisch { position: absolute; left: 0; right: 0; bottom: 0; height: 24vh; min-height: 70px;
+  background: repeating-linear-gradient(92deg, rgba(120,70,20,.06) 0 3px, transparent 3px 22px, rgba(120,70,20,.05) 22px 24px, transparent 24px 61px), linear-gradient(#e2ab6c, #d4955a);
+  box-shadow: inset 0 6px 0 #edc190, inset 0 7px 0 rgba(120,70,20,.25); }
+.laptop { position: absolute; z-index: 2; left: 50%; top: 12px; transform: translateX(-50%); width: min(calc(100vw - 40px), 1560px); animation: an .9s ease-out; }
+@keyframes an { from { filter: brightness(.35); } to { filter: none; } }
+.bildschirm { position: relative; height: min(calc(100vh - 12px - 34px), 1000px); background: #232a3b; border-radius: 22px 22px 8px 8px; padding: 13px; box-shadow: 0 18px 40px rgba(60,40,20,.28); }
+.bildschirm::before { content: ""; position: absolute; top: 4px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #3b4560; }
+.unterteil { position: relative; height: 22px; margin: 0 -34px; background: linear-gradient(#eef0f4, #c3c8d2 70%, #9aa1ae); border-radius: 3px 3px 26px 26px / 3px 3px 14px 14px; box-shadow: 0 10px 18px rgba(60,40,20,.3); }
+.unterteil::after { content: ""; position: absolute; top: 0; left: 50%; width: 130px; height: 7px; margin-left: -65px; border-radius: 0 0 10px 10px; background: #b3b9c5; }
+.app { height: 100%; border-radius: 10px; overflow: hidden; position: relative;
+  background: var(--himmel); background-image: radial-gradient(circle at 12% 0%, #eef5ff 0, transparent 40%), radial-gradient(circle at 100% 100%, #cfe2ff 0, transparent 45%); }
+.sprite { position: absolute; pointer-events: none; }
+.s-maeppchen, .s-apfel, .s-heft, .s-flasche, .s-pflanze { display: none; }
+.zettel { z-index: 3; right: 4px; bottom: 2px; width: 104px; padding: 8px 9px 10px; background: #fff27a; color: #3b3200; font-weight: 800; font-size: 12px; line-height: 1.3;
+  transform: rotate(5deg); box-shadow: 0 6px 10px rgba(60,40,20,.25); border-radius: 2px 2px 10px 2px; }
+/* Breite Bildschirme: Laptop kleiner, Sachen liegen daneben auf dem Tisch */
+@media (min-width: 1450px) {
+  .szene { --lw: min(calc(100vw - 440px), 1560px); }
+  .laptop { width: var(--lw); }
+  .s-maeppchen, .s-apfel, .s-heft, .s-flasche, .s-pflanze { display: block; }
+  .s-heft { z-index: 1; left: calc(50% - var(--lw) / 2 - 215px); bottom: 17vh; width: 200px; transform: rotate(-9deg); }
+  .s-maeppchen { z-index: 1; left: calc(50% - var(--lw) / 2 - 215px); bottom: 3vh; width: 190px; }
+  .s-pflanze { z-index: 1; right: calc(50% - var(--lw) / 2 - 200px); bottom: 20vh; width: 140px; }
+  .s-flasche { z-index: 1; right: calc(50% - var(--lw) / 2 - 90px); bottom: 5vh; width: 70px; }
+  .s-apfel { z-index: 1; right: calc(50% - var(--lw) / 2 - 190px); bottom: 3vh; width: 64px; }
+  .zettel { right: auto; left: calc(50% + var(--lw) / 2 + 14px); bottom: auto; top: 36vh; width: 150px; font-size: 16px; padding: 12px 12px 14px; transform: rotate(4deg); }
+  .zettel b { font-size: 14px; }
+}
+.zettel b { display: block; font-size: 12px; margin-bottom: 3px; color: #8a6d00; }
 @media (max-width: 980px) { .haupt { grid-template-columns: 1fr; } .spalte { min-height: 300px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<div class="app">
+<div class="szene">
+  <div class="tisch"></div>
+  <!-- Sprites: selbst gezeichnet, CC BY-SA wie das Spiel -->
+  <svg class="sprite s-heft" viewBox="0 0 260 180" aria-hidden="true">
+    <rect x="14" y="10" width="232" height="162" rx="12" fill="#5b8def" stroke="#1f2a55" stroke-width="3.5"/>
+    <g fill="#fff" stroke="#1f2a55" stroke-width="2.5">
+      <circle cx="30" cy="34" r="5"/><circle cx="30" cy="62" r="5"/><circle cx="30" cy="90" r="5"/><circle cx="30" cy="118" r="5"/><circle cx="30" cy="146" r="5"/>
+    </g>
+    <rect x="86" y="44" width="126" height="46" rx="8" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
+    <path d="M100 60h96M100 75h70" stroke="#9fb4e6" stroke-width="4" stroke-linecap="round"/>
+    <path d="M190 118l7 14 15 2-11 10 3 15-14-7-13 7 3-15-11-10 15-2z" fill="#ffc53d" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M70 130q12-16 24 0t24 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  </svg>
+  <svg class="sprite s-pflanze" viewBox="0 0 150 200" aria-hidden="true">
+    <path d="M75 120C60 90 30 88 18 60c26 2 46 20 57 50zM75 118c4-36 28-58 58-62-6 30-28 52-58 62zM75 116c-10-40 0-78 10-100 14 30 10 70-10 100z" fill="#3fbf7f" stroke="#1f2a55" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M75 118V60" stroke="#1f2a55" stroke-width="3"/>
+    <path d="M36 116h78l-10 72a8 8 0 0 1-8 7H54a8 8 0 0 1-8-7z" fill="#ffc53d" stroke="#1f2a55" stroke-width="3.5" stroke-linejoin="round"/>
+    <rect x="30" y="110" width="90" height="16" rx="5" fill="#ffd66b" stroke="#1f2a55" stroke-width="3.5"/>
+    <circle cx="62" cy="152" r="4" fill="#1f2a55"/><circle cx="88" cy="152" r="4" fill="#1f2a55"/><path d="M66 166q9 8 18 0" fill="none" stroke="#1f2a55" stroke-width="3" stroke-linecap="round"/>
+  </svg>
+  <svg class="sprite s-flasche" viewBox="0 0 90 220" aria-hidden="true">
+    <rect x="28" y="6" width="34" height="30" rx="6" fill="#1f2a55"/>
+    <rect x="22" y="30" width="46" height="16" rx="5" fill="#2e3b6e" stroke="#1f2a55" stroke-width="3"/>
+    <path d="M18 48h54a6 6 0 0 1 6 6v150a10 10 0 0 1-10 10H22a10 10 0 0 1-10-10V54a6 6 0 0 1 6-6z" fill="#34c3c3" stroke="#1f2a55" stroke-width="3.5"/>
+    <path d="M24 64v130" stroke="#bff0ef" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="50" cy="128" r="17" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
+    <path d="M50 117l3.5 7 7.5 1-5.5 5 1.5 7.5-7-3.5-7 3.5 1.5-7.5-5.5-5 7.5-1z" fill="#ff7a6b"/>
+  </svg>
+  <svg class="sprite s-maeppchen" viewBox="0 0 190 100" aria-hidden="true">
+    <rect x="40" y="6" width="12" height="56" rx="3" fill="#ffc53d" stroke="#1f2a55" stroke-width="3" transform="rotate(-18 46 34)"/>
+    <path d="M36 -2l6 -12 6 12z" fill="#f3d7a8" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round" transform="rotate(-18 46 34) translate(4 8)"/>
+    <rect x="64" y="2" width="12" height="60" rx="3" fill="#5b8def" stroke="#1f2a55" stroke-width="3" transform="rotate(10 70 32)"/>
+    <rect x="96" y="0" width="26" height="62" rx="3" fill="#fff" stroke="#1f2a55" stroke-width="3" transform="rotate(22 109 31)"/>
+    <path d="M100 12h8M100 22h12M100 32h8M100 42h12" stroke="#1f2a55" stroke-width="2.5" transform="rotate(22 109 31)"/>
+    <rect x="6" y="40" width="178" height="56" rx="28" fill="#ff7a6b" stroke="#1f2a55" stroke-width="3.5"/>
+    <path d="M24 52h142" stroke="#1f2a55" stroke-width="3" stroke-dasharray="4 5"/>
+    <path d="M158 52v18" stroke="#1f2a55" stroke-width="3" stroke-linecap="round"/><rect x="151" y="68" width="14" height="16" rx="4" fill="#ffc53d" stroke="#1f2a55" stroke-width="3"/>
+    <circle cx="60" cy="74" r="9" fill="#fff" stroke="#1f2a55" stroke-width="2.5"/><circle cx="60" cy="74" r="3" fill="#1f2a55"/>
+  </svg>
+  <svg class="sprite s-apfel" viewBox="0 0 64 64" aria-hidden="true">
+    <path d="M32 18c-6-6-24-4-24 14 0 16 12 28 20 28 3 0 3-2 4-2s1 2 4 2c8 0 20-12 20-28 0-18-18-20-24-14z" fill="#e0474c" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M32 18c0-6 2-10 5-13" stroke="#1f2a55" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M36 10c6-6 14-4 16-2-4 6-12 6-16 2z" fill="#3fbf7f" stroke="#1f2a55" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M17 30c1-5 4-8 8-9" stroke="#ffb3b0" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </svg>
+  <div class="sprite zettel" aria-hidden="true"><b>Nicht vergessen!</b>An · Betreff<br>Anrede<br>Text<br>Gruß + Name</div>
+  <div class="laptop"><div class="bildschirm"><div class="app" id="app"><div class="app-innen">
   <header class="kopf">
     <div class="marke" aria-label="Brieftaube">
       <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -190,7 +277,9 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
     </section>
     <section class="spalte" id="rechts" aria-label="Lesen und Schreiben"></section>
   </main>
+</div></div></div><div class="unterteil"></div></div>
 </div>
+
 
 <script>
 'use strict';
@@ -325,6 +414,107 @@ const AUFTRAEGE = [
     check: () => S.mails.every(m => m.ordner !== 'eingang') },
 ];
 
+// ——— Endlos-Aufgaben (nach den zehn festen Aufträgen) ———
+// Eine Aufgabe ist ein reines Datenobjekt (spec), damit sie im Speicher überlebt.
+const TAGE = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const zufall = (a) => a[Math.floor(Math.random() * a.length)];
+const zahl = (von, bis) => String(von + Math.floor(Math.random() * (bis - von + 1)));
+const W = (alts, hinweis) => ({ alts, hinweis });
+const ADR = { sonne: 'sonne@schule-am-see.de', tom: 'tom@brieftaube.de', lina: 'lina@brieftaube.de', oma: 'oma.hilde@brieftaube.de', kraus: 'kraus@schule-am-see.de', buch: 'info@buecherei-seestadt.de' };
+const VORLAGEN = {
+  antwort: [
+    (s) => { const t = zufall(TAGE), u = zahl(14, 17); return { von: ADR.tom, betreff: `Kicken am ${t}?`, text: `Hi ${s.name},\n\nwir kicken am ${t} im Park. Wann kannst du kommen?\n\nTom`,
+      titel: `Antworte Tom: Du kommst um ${u} Uhr.`, woerter: [W([u], `Schreib die Uhrzeit: ${u} Uhr.`)], anrede: 'Tom' }; },
+    (s) => { const t = zufall(TAGE), u = zahl(14, 17); return { von: ADR.oma, betreff: 'Waffeln bei Oma', text: `Mein Schatz,\n\nwann kommst du mich besuchen? Ich backe Waffeln.\n\nDeine Oma Hilde`,
+      titel: `Antworte Oma Hilde: Du kommst am ${t} um ${u} Uhr.`, woerter: [W([t], `Schreib den Tag: ${t}.`), W([u], `Schreib die Uhrzeit: ${u} Uhr.`)], anrede: 'Oma Hilde' }; },
+    (s) => { const p = zahl(12, 58); return { von: ADR.lina, betreff: 'Welche Seite?', text: `Hi ${s.name},\n\nwelche Seite sollen wir im Lesebuch lesen? Ich hab es vergessen.\n\nLina`,
+      titel: `Lina fragt nach der Seite. Antworte ihr: Seite ${p}.`, woerter: [W([p], `Schreib die Seite: ${p}.`)], anrede: 'Lina' }; },
+    (s) => { const t = zufall(TAGE.slice(0, 5)); return { von: ADR.buch, betreff: 'Dein Buch ist da', text: `Hallo ${s.name},\n\ndas Buch, das du bestellt hast, ist da. Wann holst du es ab?\n\nDein Bücherei-Team`,
+      titel: `Antworte der Bücherei: Du holst das Buch am ${t} ab.`, woerter: [W([t], `Schreib den Tag: ${t}.`)] }; },
+    (s) => { const was = zufall(['Kuchen', 'Getränke']); return { von: ADR.sonne, betreff: 'Hilfe beim Schulfest', text: `Hallo ${s.name},\n\nkannst du beim Schulfest helfen? Wir brauchen Hilfe beim Kuchen und bei den Getränken. Wo möchtest du helfen?\n\nViele Grüße\nFrau Sonne`,
+      titel: `Antworte Frau Sonne: Du hilfst ${was === 'Kuchen' ? 'beim Kuchen' : 'bei den Getränken'}.`, woerter: [W([was === 'Kuchen' ? 'kuchen' : 'getränk'], `Schreib, wo du hilfst: ${was}.`)], anrede: 'Frau Sonne' }; },
+    (s) => { const f = zufall(['blaue', 'rote', 'grüne']); return { von: ADR.kraus, betreff: 'Jacke gefunden', text: `Hallo ${s.name},\n\nich habe eine ${f} Jacke gefunden. Ist das deine? Wann holst du sie ab?\n\nHerr Kraus`,
+      titel: 'Antworte Herrn Kraus: Ja, das ist deine Jacke. Du holst sie in der großen Pause ab.', woerter: [W(['ja', 'meine'], 'Schreib, dass es deine Jacke ist.'), W(['pause'], 'Schreib, wann du sie abholst: in der großen Pause.')], anrede: 'Herr Kraus' }; },
+    (s) => { const sp = zufall(['Uno', 'Memory', 'Schach', 'Mikado']); return { von: ADR.tom, betreff: 'Spieleabend', text: `Hi ${s.name},\n\nwir machen am Freitag einen Spieleabend. Welches Spiel bringst du mit?\n\nTom`,
+      titel: `Antworte Tom: Du bringst ${sp} mit.`, woerter: [W([sp], `Schreib, welches Spiel du mitbringst: ${sp}.`)], anrede: 'Tom' }; },
+    (s) => { const t = zufall(TAGE), u = zufall(['15', '17']); return { von: ADR.lina, betreff: 'Kino?', text: `Hi ${s.name},\n\ngehen wir am ${t} ins Kino? Lieber um 15 oder um 17 Uhr?\n\nLina`,
+      titel: `Antworte Lina: Du gehst mit, lieber um ${u} Uhr.`, woerter: [W([u], `Schreib die Uhrzeit: ${u} Uhr.`)], anrede: 'Lina' }; },
+  ],
+  neu: [
+    () => { const t = zufall(TAGE.slice(0, 5)); return { an: ADR.sonne, titel: `Schreib Frau Sonne: Du bist am ${t} beim Arzt und kommst später.`, woerter: [W([t], `Schreib den Tag: ${t}.`), W(['arzt', 'ärztin'], 'Schreib, dass du beim Arzt bist.')], anrede: 'Frau Sonne' }; },
+    () => { const g = zufall(['Buch', 'Puzzle', 'Fahrradlicht', 'Kuscheltier']); return { an: ADR.oma, titel: `Bedank dich bei Oma Hilde für das ${g}.`, woerter: [W(['danke'], 'Schreib „Danke“.'), W([g], `Schreib, wofür du dich bedankst: ${g}.`)], anrede: 'Oma Hilde' }; },
+    () => { const t = zufall(TAGE); return { an: ADR.tom, titel: `Lade Tom zu deinem Geburtstag am ${t} ein.`, woerter: [W(['geburtstag'], 'Schreib, dass du Geburtstag feierst.'), W([t], `Schreib den Tag: ${t}.`)], anrede: 'Tom' }; },
+    () => { const t = zufall(TAGE); return { an: ADR.buch, titel: `Frag die Bücherei, ob sie am ${t} geöffnet hat.`, woerter: [W([t], `Schreib den Tag: ${t}.`)], frage: true }; },
+    () => { const r = 'A' + zahl(101, 120); return { an: ADR.kraus, titel: `Schreib Herrn Kraus: Im Raum ${r} ist das Licht kaputt.`, woerter: [W([r], `Schreib den Raum: ${r}.`), W(['licht', 'lampe'], 'Schreib, was kaputt ist: das Licht.')], anrede: 'Herr Kraus' }; },
+    () => ({ an: ADR.lina, titel: 'Frag Lina, ob sie dir die Fotos vom Sportfest schickt.', woerter: [W(['foto'], 'Schreib, dass es um die Fotos geht.')], frage: true, anrede: 'Lina' }),
+  ],
+  weiter: [
+    () => ({ von: ADR.sonne, betreff: 'Neue Theater-AG', text: 'Liebe Klasse,\n\nab nächster Woche gibt es eine Theater-AG, immer mittwochs nach der 6. Stunde.\n\nViele Grüße\nFrau Sonne', an: ADR.tom, wem: 'Tom' }),
+    () => { const t = zufall(TAGE.slice(0, 5)); return { von: ADR.buch, betreff: `Lesenacht am ${t}`, text: `Hallo,\n\nam ${t} ist Lesenacht in der Bücherei. Bringt Kissen und Taschenlampe mit!\n\nDein Bücherei-Team`, an: ADR.lina, wem: 'Lina' }; },
+    () => ({ von: ADR.kraus, betreff: 'Neue Fahrradständer', text: 'Hallo zusammen,\n\nhinter der Turnhalle stehen jetzt neue Fahrradständer.\n\nHerr Kraus', an: ADR.tom, wem: 'Tom' }),
+    () => ({ von: ADR.tom, betreff: 'Witz des Tages', text: 'Was ist grün und klopft an die Tür?\n\nEin Klopfsalat!\n\nTom', an: ADR.oma, wem: 'Oma Hilde' }),
+    () => ({ von: ADR.lina, betreff: 'Klassenfoto', text: `Hi,\n\ndas Klassenfoto wird am Donnerstag gemacht. Alle sollen etwas Buntes anziehen.\n\nLina`, an: ADR.oma, wem: 'Oma Hilde' }),
+  ],
+  loeschen: [
+    () => ({ von: WERBUNG.adr, betreff: zufall(['Gewinne ein Handy!!!', 'SUPER-ANGEBOT nur heute', '50 % auf alle Sneaker!!!']), text: 'Klick JETZT! Nur heute! Nur für dich!\n\nDein Mega-Deals-Team' }),
+  ],
+  archiv: [
+    () => ({ von: ADR.oma, betreff: 'Danke für deinen Besuch', text: 'Mein Schatz,\n\nschön, dass du da warst!\n\nDeine Oma Hilde' }),
+    () => ({ von: ADR.sonne, betreff: 'Stundenplan ab Montag', text: 'Liebe Klasse,\n\nab Montag gilt der neue Stundenplan. Hebt ihn gut auf.\n\nFrau Sonne' }),
+  ],
+  zurueck: [
+    () => ({ von: ADR.lina, betreff: 'Wichtig: Wandertag', text: `Hi,\n\nam Wandertag treffen wir uns um 8 Uhr am Bahnhof.\n\nLina` }),
+    () => ({ von: ADR.tom, betreff: 'Mein neues Haustier', text: 'Hi,\n\nwir haben jetzt ein Kaninchen! Es heißt Möhre.\n\nTom' }),
+  ],
+};
+function neueEndlosAufgabe() {
+  const nr = S.endlos.nr, id = 'e' + nr;
+  const imEingang = S.mails.filter(m => m.ordner === 'eingang').length;
+  let typ = imEingang >= 7 ? 'leer' : zufall(['antwort', 'antwort', 'antwort', 'neu', 'neu', 'weiter', 'weiter', 'loeschen', 'archiv', 'zurueck']);
+  if (typ === S.endlos.letzter && typ !== 'antwort') typ = 'antwort';
+  let v = typ === 'leer' ? {} : zufall(VORLAGEN[typ])(S);
+  let tries = 0;
+  while (typ !== 'leer' && S.endlos.titel && v.titel === S.endlos.titel && tries++ < 5) v = zufall(VORLAGEN[typ])(S);
+  const spec = { typ, id, an: v.an, woerter: v.woerter || [], anrede: v.anrede, frage: !!v.frage };
+  const mails = [];
+  if (typ === 'antwort') { spec.titel = v.titel; spec.tipp = `Öffne die E-Mail „${v.betreff}“. Klick auf „Antworten“.`; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
+  if (typ === 'neu') { spec.titel = v.titel; spec.tipp = 'Klick auf „Neue E-Mail“. Die Adresse steht im Adressbuch.'; }
+  if (typ === 'weiter') { spec.titel = `Leite die E-Mail „${v.betreff}“ an ${v.wem} weiter. Schreib einen Satz dazu.`; spec.tipp = 'Öffne die E-Mail. Klick auf „Weiterleiten“.'; spec.wem = v.wem; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
+  if (typ === 'loeschen') { spec.titel = `Lösch die Werbung „${v.betreff}“.`; spec.tipp = 'Öffne die E-Mail. Klick auf „Löschen“.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
+  if (typ === 'archiv') { spec.titel = `Heb die E-Mail „${v.betreff}“ auf: Archiviere sie.`; spec.tipp = 'Öffne die E-Mail. Klick auf „Archivieren“.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text }); }
+  if (typ === 'zurueck') { spec.titel = `Hoppla! Die E-Mail „${v.betreff}“ ist im Papierkorb gelandet. Hol sie zurück.`; spec.tipp = 'Öffne links den Papierkorb.'; mails.push({ id, von: v.von, betreff: v.betreff, text: v.text, ordner: 'papierkorb', gelesen: true }); }
+  if (typ === 'leer') { spec.titel = 'Dein Posteingang ist voll. Räum auf, bis er leer ist.'; spec.tipp = 'Was erledigt ist: archivieren. Was du nicht brauchst: löschen.'; }
+  const grund = { antwort: 90, neu: 100, weiter: 75, loeschen: 20, archiv: 20, zurueck: 25, leer: 45 }[typ];
+  spec.sekunden = Math.round(grund * Math.max(0.6, 1 - 0.03 * S.endlos.punkte));
+  spec.bis = Date.now() + spec.sekunden * 1000;
+  S.endlos.letzter = typ; S.endlos.titel = spec.titel;
+  return { spec, mails };
+}
+function pruefeEndlos(sp, e) {
+  const pruefeText = (m, fehlt) => {
+    sp.woerter.forEach(w => { if (!enthaelt(m, ...w.alts)) fehlt.push(w.hinweis); });
+    if (sp.frage && !eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
+  };
+  if (sp.typ === 'loeschen') return e.typ === 'verschoben' && e.mail.id === sp.id && e.nach === 'papierkorb';
+  if (sp.typ === 'archiv') return e.typ === 'verschoben' && e.mail.id === sp.id && e.nach === 'archiv';
+  if (sp.typ === 'zurueck') return e.typ === 'verschoben' && e.mail.id === sp.id && e.nach === 'eingang';
+  if (sp.typ === 'leer') return S.mails.every(m => m.ordner !== 'eingang');
+  if (e.typ !== 'gesendet') return false;
+  const m = e.mail, fehlt = [];
+  if (sp.typ === 'antwort') {
+    if (!(m.art === 'antwort' && m.bezug === sp.id)) fehlt.push('Antworte auf die richtige E-Mail: Öffne sie und klick auf „Antworten“.');
+    pruefeText(m, fehlt); form(m, fehlt, sp.anrede);
+  } else if (sp.typ === 'neu') {
+    if (m.an !== sp.an) fehlt.push(`Die E-Mail muss an diese Adresse gehen: ${sp.an}`);
+    pruefeText(m, fehlt); form(m, fehlt, sp.anrede);
+  } else if (sp.typ === 'weiter') {
+    if (!(m.art === 'weiter' && m.bezug === sp.id)) fehlt.push('Leite die richtige E-Mail weiter: Öffne sie und klick auf „Weiterleiten“.');
+    if (m.an !== sp.an) fehlt.push(`Die E-Mail muss an ${sp.wem} gehen: ${sp.an}`);
+    if (eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push(`Schreib über die weitergeleitete E-Mail einen Satz an ${sp.wem}.`);
+  }
+  return fehlt.length ? { fehlt } : true;
+}
+
 // ——— Zustand ———
 const KEY = 'brieftaube-v1';
 let S = null;           // gespeicherter Zustand
@@ -340,13 +530,14 @@ function adresseAus(name) {
 
 // ——— Ereignisse und Aufträge ———
 function melde(e) {
-  const a = AUFTRAEGE[S.auftrag];
-  if (!a) return;
-  const r = a.check(e);
+  const endlos = S.auftrag >= AUFTRAEGE.length;
+  if (endlos && !(S.endlos && S.endlos.spec && S.endlos.laeuft)) return;
+  const r = endlos ? pruefeEndlos(S.endlos.spec, e) : AUFTRAEGE[S.auftrag].check(e);
   if (r === true) {
-    S.rueck = null; S.auftrag++; speichern();
-    render(); stempel();
-    toast(`${ic('haken')} Auftrag geschafft!`);
+    S.rueck = null;
+    if (endlos) { S.endlos.nr++; S.endlos.punkte++; S.endlos.rekord = Math.max(S.endlos.rekord, S.endlos.punkte); S.endlos.spec = null; } else S.auftrag++;
+    speichern(); render(); stempel();
+    toast(`${ic('haken')} ${endlos ? 'Aufgabe' : 'Auftrag'} geschafft!`);
     setTimeout(starteAuftrag, 1100);
   } else if (r && r.fehlt) {
     S.rueck = r.fehlt; speichern(); render();
@@ -354,13 +545,54 @@ function melde(e) {
 }
 function starteAuftrag() {
   const a = AUFTRAEGE[S.auftrag];
-  if (!a) { render(); fertigDialog(); return; }
+  if (!a) {
+    if (!S.endlos) { S.endlos = { nr: 1, spec: null, punkte: 0, herzen: 3, rekord: 0, laeuft: false }; speichern(); render(); fertigDialog(); return; }
+    if (!S.endlos.laeuft) { render(); return; }
+    if (!S.endlos.spec) {
+      const { spec, mails } = neueEndlosAufgabe();
+      S.endlos.spec = spec;
+      mails.forEach(m => { S.mails.unshift({ ordner: 'eingang', gelesen: false, ...m, zeit: jetzt() }); frisch.add(m.id); });
+      if (mails.some(m => m.ordner !== 'papierkorb')) toast(`${ic('post')} Neue E-Mail im Posteingang`);
+    }
+    speichern(); render(); return;
+  }
   if (a.neu && !S.gestartet.includes(S.auftrag)) {
     a.neu(S).forEach(m => { S.mails.unshift({ ...m, ordner: 'eingang', zeit: jetzt(), gelesen: false }); frisch.add(m.id); });
     S.gestartet.push(S.auftrag);
     toast(`${ic('post')} Neue E-Mail im Posteingang`);
   }
   speichern(); render();
+}
+
+// ——— Spiel auf Zeit ———
+function tick() {
+  const E = S && S.endlos;
+  if (!E || !E.laeuft || !E.spec || document.querySelector('.schleier')) return;
+  const rest = Math.max(0, E.spec.bis - Date.now());
+  const uhr = document.getElementById('uhr'), sek = document.getElementById('sek');
+  if (uhr) { const knapp = rest < 15000; uhr.classList.toggle('knapp', knapp); uhr.firstElementChild.style.width = (100 * rest / (E.spec.sekunden * 1000)) + '%'; sek.textContent = Math.ceil(rest / 1000) + ' s'; sek.classList.toggle('knapp', knapp); }
+  if (rest > 0) return;
+  E.herzen--; E.spec = null; S.rueck = null; speichern();
+  if (E.herzen <= 0) { E.laeuft = false; speichern(); render(); vorbeiDialog(); return; }
+  toast(`${herz(false)} Zu langsam! Ein Herz ist weg.`);
+  render(); setTimeout(starteAuftrag, 900);
+}
+setInterval(tick, 250);
+function herz(voll) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.3 5 6.8 5c2 0 3.5 1.1 5.2 3 1.7-1.9 3.2-3 5.2-3 3.5 0 5.6 3.6 4.3 6.8C19.5 16.4 12 21 12 21Z" fill="${voll ? '#e0474c' : 'none'}" stroke="${voll ? '#e0474c' : '#c9d4ea'}" stroke-width="2"/></svg>`; }
+function neueRunde() {
+  S.mails = S.mails.filter(m => !/^e\d/.test(m.id) && !/^post/.test(m.id));
+  Object.assign(S.endlos, { nr: 1, spec: null, punkte: 0, herzen: 3, laeuft: true, letzter: null, titel: null });
+  S.rueck = null; ansicht.offen = null; ansicht.schreiben = null; speichern(); starteAuftrag();
+}
+function vorbeiDialog() {
+  const E = S.endlos;
+  const d = document.createElement('div'); d.className = 'schleier';
+  d.innerHTML = `<div class="dialog"><span class="briefmarke stempel knall" style="--c:var(--rot);color:#fff">${ic('weg')}</span>
+    <h1>Keine Herzen mehr!</h1>
+    <p>Du hast <b>${E.punkte}</b> ${E.punkte === 1 ? 'Aufgabe' : 'Aufgaben'} geschafft. Dein Rekord: <b>${E.rekord}</b>.</p>
+    <div class="zeile"><button class="neu" id="nochmal">${ic('zurueck')} Nochmal</button></div></div>`;
+  document.getElementById('app').appendChild(d);
+  d.querySelector('#nochmal').addEventListener('click', () => { d.remove(); neueRunde(); });
 }
 
 // ——— Aktionen ———
@@ -437,7 +669,10 @@ function marke(adr, gross) {
 }
 const nameVon = (adr) => (person(adr) || {}).name || adr;
 
+let gerendert = null;
 function render() {
+  const fokus = document.activeElement && ['fAn', 'fBetreff', 'fText'].includes(document.activeElement.id) ? [document.activeElement.id, document.activeElement.selectionStart] : null;
+  if (ansicht.schreiben && gerendert === ansicht.schreiben) merkeEntwurf();
   document.getElementById('meine').innerHTML = `<span class="briefmarke" style="--c:#7a5af5;width:34px;height:34px;font-size:.85rem">${esc(S.name[0].toUpperCase())}</span><span>Du bist <b>${esc(S.name)}</b> · ${esc(S.adr)}</span>`;
   // Ordner
   document.getElementById('ordner').innerHTML = ORDNER.map(([k, t]) => {
@@ -448,16 +683,26 @@ function render() {
   // Postkarte
   const a = AUFTRAEGE[S.auftrag];
   const punkte = AUFTRAEGE.map((_, i) => `<i class="${i < S.auftrag ? 'ok' : i === S.auftrag ? 'jetzt' : ''}"></i>`).join('');
+  const rueck = S.rueck ? `<div class="rueck fehlt"><b>Gesendet – aber für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : '';
+  const sp = S.endlos && S.endlos.spec;
   document.getElementById('karte').innerHTML = a ? `
       <span class="briefmarke stempel" id="stempel" style="--c:var(--gelb)">${S.auftrag + 1}<br>von ${AUFTRAEGE.length}</span>
       <div class="wer">Dein Auftrag</div>
       <h2>${esc(a.titel)}</h2>
       <p class="tipp">${esc(a.tipp)}</p>
-      ${S.rueck ? `<div class="rueck fehlt"><b>Gesendet – aber für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : ''}
+      ${rueck}
       <div class="punkte" aria-label="${S.auftrag} von ${AUFTRAEGE.length} geschafft">${punkte}</div>`
+    : sp ? `
+      <span class="briefmarke stempel" id="stempel" style="--c:var(--gruen);color:#fff">Nr.<br>${S.endlos.nr}</span>
+      <div class="spielstand"><span class="herzen" aria-label="${S.endlos.herzen} Herzen">${[0, 1, 2].map(i => herz(i < S.endlos.herzen)).join('')}</span><span>${S.endlos.punkte} Punkte</span></div>
+      <div class="uhr" id="uhr"><i style="width:${Math.max(0, 100 * (sp.bis - Date.now()) / (sp.sekunden * 1000))}%"></i></div>
+      <div class="sek" id="sek">${Math.ceil(Math.max(0, sp.bis - Date.now()) / 1000)} s</div>
+      <h2>${esc(sp.titel)}</h2>
+      <p class="tipp">${esc(sp.tipp)}</p>
+      ${rueck}`
     : `<span class="briefmarke stempel" id="stempel" style="--c:var(--gruen);color:#fff">${ic('haken')}</span>
-      <div class="wer">Alle Aufträge</div><h2>Geschafft! Du kannst jetzt mit E-Mails umgehen.</h2>
-      <p class="tipp">Du kannst weiter üben: Schreib Tom oder Oma Hilde, was du willst.</p><div class="punkte">${punkte}</div>`;
+      <div class="wer">Spiel auf Zeit${S.endlos ? ' · Rekord ' + S.endlos.rekord : ''}</div><h2>Immer neue Aufgaben, jede mit Countdown. Drei Herzen.</h2>
+      <button class="neu" id="los">${ic('post')} ${S.endlos && S.endlos.rekord ? 'Neue Runde' : 'Los geht’s'}</button><div class="punkte" style="margin-top:12px">${punkte}</div>`;
   // Liste
   const titel = ORDNER.find(o => o[0] === ansicht.ordner)[1];
   const liste = S.mails.filter(m => m.ordner === ansicht.ordner);
@@ -474,6 +719,8 @@ function render() {
   if (ansicht.schreiben) r.innerHTML = htmlSchreiben();
   else if (ansicht.offen) r.innerHTML = htmlLesen(S.mails.find(m => m.id === ansicht.offen));
   else r.innerHTML = `<div class="nichts"><div><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="14" y="30" width="92" height="64" rx="10" fill="#fff" stroke="#c5dcfb" stroke-width="4"/><path d="M16 36l44 30 44-30" fill="none" stroke="#c5dcfb" stroke-width="4" stroke-linejoin="round"/><rect x="78" y="40" width="18" height="20" rx="2" fill="#ffc53d"/></svg><p>Klick links auf eine E-Mail, um sie zu lesen.</p></div></div>`;
+  gerendert = ansicht.schreiben;
+  if (fokus && document.getElementById(fokus[0])) { const f = document.getElementById(fokus[0]); f.focus(); try { f.setSelectionRange(fokus[1], fokus[1]); } catch (e) {} }
 }
 function htmlLesen(m) {
   const imPapierkorb = m.ordner === 'papierkorb';
@@ -521,7 +768,7 @@ let toastUhr;
 function toast(html) {
   document.querySelectorAll('.toast').forEach(t => t.remove());
   const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.innerHTML = html;
-  document.body.appendChild(t); clearTimeout(toastUhr); toastUhr = setTimeout(() => t.remove(), 2200);
+  document.getElementById('app').appendChild(t); clearTimeout(toastUhr); toastUhr = setTimeout(() => t.remove(), 2200);
 }
 
 // ——— Dialoge ———
@@ -536,7 +783,7 @@ function startDialog() {
       <div class="adr" id="vorschau"></div>
       <div class="zeile"><button class="neu" type="submit">${ic('post')} Postfach öffnen</button></div>
     </form>`;
-  document.body.appendChild(d);
+  document.getElementById('app').appendChild(d);
   const i = d.querySelector('#vorname');
   i.addEventListener('input', () => { d.querySelector('#vorschau').textContent = i.value.trim() ? 'Deine Adresse: ' + adresseAus(i.value) : ''; });
   d.querySelector('form').addEventListener('submit', (e) => {
@@ -554,9 +801,10 @@ function fertigDialog() {
     <h1>Alle ${AUFTRAEGE.length} Aufträge geschafft!</h1>
     <p>Das kannst du jetzt:</p>
     <ul><li>E-Mails lesen, archivieren, löschen und zurückholen</li><li>eine neue E-Mail schreiben</li><li>antworten und weiterleiten</li><li>mit Anrede, Gruß und Namen</li></ul>
-    <div class="zeile"><button class="neu" id="weiterSpielen">${ic('post')} Weiter im Postfach</button></div></div>`;
-  document.body.appendChild(d);
-  d.querySelector('#weiterSpielen').addEventListener('click', () => d.remove());
+    <p><b>Jetzt auf Zeit:</b> Immer neue Aufgaben, jede mit Countdown. Ist die Zeit um, ist ein Herz weg. Du hast drei.</p>
+    <div class="zeile"><button class="neu" id="weiterSpielen">${ic('post')} Los geht’s</button></div></div>`;
+  document.getElementById('app').appendChild(d);
+  d.querySelector('#weiterSpielen').addEventListener('click', () => { d.remove(); neueRunde(); });
 }
 
 // ——— Klicks ———
@@ -566,6 +814,7 @@ document.addEventListener('click', (e) => {
   if (b.dataset.mail) { oeffne(b.dataset.mail); return; }
   if (b.dataset.adr) { merkeEntwurf(); const w = ansicht.schreiben; w.an = b.dataset.adr; ansicht.buch = false; render(); document.getElementById('fBetreff').focus(); return; }
   if (b.id === 'neuKnopf') { neueMail(); return; }
+  if (b.id === 'los') { neueRunde(); return; }
   if (b.id === 'vonvorn') { if (confirm('Wirklich von vorn anfangen? Alle E-Mails und Aufträge werden zurückgesetzt.')) { localStorage.removeItem(KEY); location.reload(); } return; }
   const tu = b.dataset.tu; if (!tu) return;
   const id = ansicht.offen;
@@ -582,7 +831,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ansicht.
 
 // ——— Start ———
 S = laden();
-if (S && S.mails) render(); else startDialog();
+if (S && S.mails) { render(); if (S.auftrag >= AUFTRAEGE.length && S.endlos && S.endlos.laeuft && !S.endlos.spec) starteAuftrag(); } else startDialog();
 </script>
 </body>
 </html>
