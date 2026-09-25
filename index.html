@@ -184,6 +184,8 @@ body { overflow: hidden; background: #cdeee0; }
   transform: rotate(4deg); box-shadow: 0 10px 16px rgba(40,70,55,.25); border-radius: 2px 2px 14px 2px; pointer-events: none; }
 .zettel::before { content: ""; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #e0474c; box-shadow: 0 2px 3px rgba(0,0,0,.3); }
 .zettel b { display: block; font-size: 15px; margin-bottom: 4px; color: #8a6d00; }
+.szene::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 42%, transparent 66%, rgba(20,40,35,.16) 100%); transition: opacity .6s; }
+.szene.nah::after { opacity: 0; }
 .zoom { position: fixed; z-index: 50; bottom: 14px; right: 14px; border: 0; background: var(--papier); color: var(--tinte); border-radius: 999px; padding: 10px 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(31,42,85,.18); }
 .zoom:hover { background: var(--gelb); }
 @media (max-width: 980px) { .haupt { grid-template-columns: 1fr; } .spalte { min-height: 300px; } }
@@ -914,6 +916,59 @@ function kakao(cx, boden) {
   return s;
 }
 
+// ——— Raum: Wand mit Tapete und Sonnenlicht, Holztisch aus Dielen, Filzunterlage ———
+const FLUCHT = { x: 800, y: -197 };                       // derselbe Fluchtpunkt wie die Handablage
+const zumFlucht = (xb, y) => FLUCHT.x + (xb - FLUCHT.x) * (y - FLUCHT.y) / (590 - FLUCHT.y);   // Linie, die bei y=590 durch xb geht
+function baueRaum() {
+  let s = `<defs>
+    <pattern id="tapete" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="32" height="64" fill="#ffffff" opacity=".13"/>
+      <circle cx="48" cy="16" r="2" fill="#ffffff" opacity=".45"/><circle cx="48" cy="48" r="1.4" fill="#ffffff" opacity=".35"/>
+    </pattern>
+    <linearGradient id="wandUnten" gradientUnits="userSpaceOnUse" x1="0" y1="470" x2="0" y2="590"><stop offset="0" stop-color="#1e4a3a" stop-opacity="0"/><stop offset="1" stop-color="#1e4a3a" stop-opacity=".2"/></linearGradient>
+    <linearGradient id="wandOben" gradientUnits="userSpaceOnUse" x1="0" y1="-200" x2="0" y2="160"><stop offset="0" stop-color="#1e4a3a" stop-opacity=".16"/><stop offset="1" stop-color="#1e4a3a" stop-opacity="0"/></linearGradient>
+    <linearGradient id="sonne" gradientUnits="userSpaceOnUse" x1="-200" y1="0" x2="900" y2="560"><stop offset="0" stop-color="#fffbe6" stop-opacity=".55"/><stop offset="1" stop-color="#fffbe6" stop-opacity="0"/></linearGradient>
+    <filter id="sonnenrand" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="10"/></filter>
+    <linearGradient id="holzTiefe" gradientUnits="userSpaceOnUse" x1="0" y1="590" x2="0" y2="966"><stop offset="0" stop-color="#4a2a0e" stop-opacity=".32"/><stop offset=".55" stop-color="#4a2a0e" stop-opacity=".06"/><stop offset="1" stop-color="#4a2a0e" stop-opacity="0"/></linearGradient>
+    <linearGradient id="lack" gradientUnits="userSpaceOnUse" x1="-100" y1="600" x2="1000" y2="980"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity=".16"/><stop offset=".5" stop-color="#fff" stop-opacity=".02"/><stop offset=".62" stop-color="#fff" stop-opacity=".1"/><stop offset=".75" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="kanteFront" gradientUnits="userSpaceOnUse" x1="0" y1="964" x2="0" y2="1010"><stop offset="0" stop-color="#f6c992"/><stop offset=".12" stop-color="#d9965a"/><stop offset=".3" stop-color="#b87640"/><stop offset="1" stop-color="#7a4520"/></linearGradient>
+    <linearGradient id="filz" gradientUnits="userSpaceOnUse" x1="0" y1="690" x2="0" y2="960"><stop offset="0" stop-color="#34466b"/><stop offset="1" stop-color="#40557f"/></linearGradient>
+  </defs>`;
+  // Wand
+  s += `<rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#wand)"/>
+    <rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#tapete)"/>
+    <rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#licht)"/>
+    <rect x="-4000" y="-3000" width="9600" height="3160" fill="url(#wandOben)"/>
+    <g filter="url(#sonnenrand)" fill="url(#sonne)"><path d="M-120 60 L200 60 L520 590 L200 590 Z"/><path d="M240 60 L420 60 L740 590 L560 590 Z"/></g>
+    <rect x="-4000" y="470" width="9600" height="120" fill="url(#wandUnten)"/>`;
+  // Tisch: Dielen, die zum Fluchtpunkt laufen
+  const farben = ['#dca064', '#d39658', '#e0a86d', '#cf9152', '#d89c5f', '#e3ab70'];
+  const breite = 230, anfang = -4000 - ((-4000 - 800) % breite);
+  for (let i = 0, xb = anfang; xb < 5600; i++, xb += breite) {
+    const a = xb, b = xb + breite, af = zumFlucht(a, 966), bf = zumFlucht(b, 966);
+    s += `<polygon points="${a},590 ${b},590 ${bf.toFixed(1)},966 ${af.toFixed(1)},966" fill="${farben[((i % 6) + 6) % 6]}"/>`;
+    // Maserung: drei geschwungene Linien je Diele
+    for (let k = 1; k <= 3; k++) {
+      const t = k / 4 + ((i * 13 + k * 7) % 5 - 2) * 0.02, xa = a + (b - a) * t, xe = zumFlucht(xa, 966), mitte = (xa + xe) / 2 + ((i + k) % 2 ? 9 : -9);
+      s += `<path d="M${xa.toFixed(1)} 590 Q ${mitte.toFixed(1)} 778 ${xe.toFixed(1)} 966" stroke="#8b5424" stroke-opacity="${(0.07 + (k % 2) * 0.05).toFixed(2)}" stroke-width="${k === 2 ? 2.2 : 1.3}" fill="none"/>`;
+    }
+    if (i % 3 === 1) { const y = 700 + (i * 53 % 200), xk = zumFlucht(a + breite * 0.62, y) ; s += `<ellipse cx="${xk.toFixed(1)}" cy="${y}" rx="${(7 + y / 90).toFixed(1)}" ry="${(3 + y / 260).toFixed(1)}" fill="none" stroke="#8b5424" stroke-opacity=".22" stroke-width="2"/><ellipse cx="${xk.toFixed(1)}" cy="${y}" rx="3" ry="1.4" fill="#8b5424" opacity=".3"/>`; }
+    s += `<path d="M${a} 590 L${af.toFixed(1)} 966" stroke="#6b3d16" stroke-opacity=".35" stroke-width="2"/><path d="M${a + 2} 590 L${(af + 2.5).toFixed(1)} 966" stroke="#f8d3a4" stroke-opacity=".35" stroke-width="1"/>`;
+  }
+  s += `<rect x="-4000" y="590" width="9600" height="376" fill="url(#holzTiefe)"/>
+    <rect x="-4000" y="590" width="9600" height="376" fill="url(#lack)"/>
+    <rect x="-4000" y="590" width="9600" height="18" fill="#3b2208" opacity=".22" filter="url(#weich2)"/>
+    <rect x="-4000" y="962" width="9600" height="3100" fill="url(#kanteFront)"/>
+    <rect x="-4000" y="962" width="9600" height="2.5" fill="#fbe0bd"/>`;
+  for (let i = 0; i < 60; i++) s += `<path d="M${-3800 + i * 160} ${978 + (i % 3) * 6} q80 ${i % 2 ? 4 : -4} 160 0" stroke="#5a3010" stroke-opacity=".15" stroke-width="1.5" fill="none"/>`;
+  // Filzunterlage mit Ziernaht unter dem Laptop
+  const ul = [[150, 664], [1450, 664], [1586, 950], [14, 950]];
+  s += `<path d="M${ul[0][0] + 16} ${ul[0][1]} L${ul[1][0] - 16} ${ul[1][1]} Q${ul[1][0]} ${ul[1][1]} ${ul[1][0] + 5} ${ul[1][1] + 12} L${ul[2][0] - 4} ${ul[2][1] - 16} Q${ul[2][0]} ${ul[2][1]} ${ul[2][0] - 22} ${ul[2][1]} L${ul[3][0] + 22} ${ul[3][1]} Q${ul[3][0]} ${ul[3][1]} ${ul[3][0] + 4} ${ul[3][1] - 16} L${ul[0][0] - 5} ${ul[0][1] + 12} Q${ul[0][0]} ${ul[0][1]} ${ul[0][0] + 16} ${ul[0][1]} Z" fill="url(#filz)"/>
+    <path d="M${ul[0][0] + 14} ${ul[0][1] + 8} L${ul[1][0] - 14} ${ul[1][1] + 8} L${ul[2][0] - 20} ${ul[2][1] - 9} L${ul[3][0] + 20} ${ul[3][1] - 9} Z" fill="none" stroke="#8fa3cc" stroke-width="2" stroke-dasharray="7 6" opacity=".7"/>
+    <path d="M${ul[3][0] + 22} ${ul[3][1]} L${ul[2][0] - 22} ${ul[2][1]}" stroke="#23304d" stroke-width="3" opacity=".6"/>`;
+  return s;
+}
+
 function baueWelt() {
   let s = `<defs>
     <filter id="weich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
@@ -933,8 +988,7 @@ function baueWelt() {
     <linearGradient id="pad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dfe3ea"/><stop offset="1" stop-color="#e9ecf1"/></linearGradient>
     <radialGradient id="uhrglas" cx="35%" cy="30%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#eef3f8"/></radialGradient>
   </defs>`;
-  // Wand mit Fensterlicht
-  s += `<rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#wand)"/><rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#punkte)"/><rect x="-4000" y="-3000" width="9600" height="3590" fill="url(#licht)"/>`;
+  s += baueRaum();
   // Pinnwand links
   s += `<g transform="translate(34 96) rotate(-2)"><rect x="6" y="8" width="200" height="240" rx="10" fill="#000" opacity=".12" filter="url(#weich2)"/>
     <rect width="200" height="240" rx="10" fill="#a8743f"/><rect x="10" y="10" width="180" height="220" rx="5" fill="#d9a86c"/>
@@ -946,14 +1000,6 @@ function baueWelt() {
   s += `<g transform="translate(1482 150)"><circle r="70" cx="8" cy="10" fill="#000" opacity=".14" filter="url(#weich2)"/><circle r="70" fill="#3d6df2"/><circle r="58" fill="url(#uhrglas)"/>
     ${Array.from({ length: 12 }, (_, i) => `<rect x="-2" y="-52" width="4" height="${i % 3 ? 7 : 12}" rx="2" fill="#1f2a55" transform="rotate(${i * 30})"/>`).join('')}
     <path d="M0 0L0 -34" stroke="#1f2a55" stroke-width="6" stroke-linecap="round" transform="rotate(300)"/><path d="M0 0L0 -46" stroke="#1f2a55" stroke-width="4" stroke-linecap="round" transform="rotate(60)"/><circle r="5" fill="#e0474c"/></g>`;
-  // Tisch in Perspektive: Maserung läuft zum Fluchtpunkt
-  s += `<rect x="-4000" y="590" width="9600" height="378" fill="url(#holz)"/>`;
-  for (let i = 0; i < 150; i++) {
-    const x = -3700 + i * 60 + (i * 37 % 23), xf = 800 + (x - 800) * 1.9, w = 1 + (i * 7 % 3);
-    s += `<path d="M${x} 590 C ${x + 10} 700, ${xf - 20} 860, ${xf} 968" stroke="#8b5424" stroke-opacity="${0.06 + (i % 4) * 0.025}" stroke-width="${w}" fill="none"/>`;
-  }
-  s += `<rect x="-4000" y="590" width="9600" height="378" fill="url(#holzglanz)"/><rect x="-4000" y="590" width="9600" height="26" fill="#5a3510" opacity=".16"/>
-    <rect x="-4000" y="966" width="9600" height="3000" fill="url(#kante)"/><rect x="-4000" y="966" width="9600" height="3" fill="#f3c48c"/>`;
   // Stiftebecher links hinten, Pflanze rechts hinten
   s += stiftebecher(128, 716) + pflanze(1478, 700);
   // Schatten des Laptops
@@ -1030,6 +1076,7 @@ function kamera(animiert) {
     const cx = (vw / 2 - ox) / s, cy = (vh / 2 - oy) / s;
     k.style.transform = `translate(${cx - Z * (SCHIRM.x + SCHIRM.w / 2)}px, ${cy - Z * (SCHIRM.y + SCHIRM.h / 2)}px) scale(${Z})`;
   } else k.style.transform = 'none';
+  document.getElementById('szene').classList.toggle('nah', zoom);
   if (!animiert) { void k.offsetWidth; k.style.transition = ''; }
   const lupe = '<svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>';
   document.getElementById('zoom').innerHTML = zoom ? `${lupe}<path d="M8 11h6"/></svg> Ganzer Laptop` : `${lupe}<path d="M8 11h6M11 8v6"/></svg> Näher ran`;
