@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brieftaube – dein E-Mail-Programm zum Üben</title>
+<style>
+:root {
+  --himmel: #dcebff;
+  --himmel-tief: #c5dcfb;
+  --papier: #ffffff;
+  --papier-2: #f5f9ff;
+  --tinte: #1f2a55;
+  --tinte-2: #5a6690;
+  --linie: #d5e1f5;
+  --gelb: #ffc53d;
+  --gelb-tief: #f0a800;
+  --blau: #3d6df2;
+  --gruen: #2e9e6b;
+  --rot: #e0474c;
+  --rund: 18px;
+  --schrift: "Nunito", "Quicksand", ui-rounded, "SF Pro Rounded", "Segoe UI", "Cantarell", system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--schrift); font-size: 17px; color: var(--tinte);
+  background: var(--himmel);
+  background-image: radial-gradient(circle at 12% 0%, #eef5ff 0, transparent 40%), radial-gradient(circle at 100% 100%, #cfe2ff 0, transparent 45%);
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--blau); outline-offset: 2px; }
+svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ——— Rahmen ——— */
+.app { height: 100vh; display: grid; grid-template-rows: auto 1fr; padding: 12px 14px 14px; gap: 12px; }
+.kopf { display: flex; align-items: center; gap: 14px; padding: 2px 6px; }
+.marke { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.45rem; letter-spacing: .01em; }
+.marke svg { width: 44px; height: 44px; }
+.kopf .luft { flex: 1; }
+.meine { background: var(--papier); border-radius: 999px; padding: 6px 14px 6px 8px; display: flex; align-items: center; gap: 8px; font-size: .95rem; box-shadow: 0 1px 0 var(--himmel-tief); }
+.meine b { font-weight: 800; }
+.knopf-leise { border: 0; background: transparent; color: var(--tinte-2); padding: 8px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
+.knopf-leise:hover { background: rgba(255,255,255,.6); color: var(--tinte); }
+
+.haupt { display: grid; grid-template-columns: 270px minmax(300px, 390px) 1fr; gap: 12px; min-height: 0; }
+.spalte { background: var(--papier); border-radius: var(--rund); min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.seite { background: transparent; gap: 12px; overflow: visible; }
+
+/* ——— Seitenleiste ——— */
+.neu { border: 0; background: var(--gelb); border-radius: 16px; padding: 14px 18px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 0 var(--gelb-tief); }
+.neu:hover { filter: brightness(1.03); }
+.neu:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--gelb-tief); }
+.ordner { background: var(--papier); border-radius: var(--rund); padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.ordner button { border: 0; background: transparent; display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; font-weight: 700; text-align: left; }
+.ordner button:hover { background: var(--papier-2); }
+.ordner button[aria-current="true"] { background: var(--himmel); }
+.ordner .zahl { margin-left: auto; min-width: 26px; text-align: center; border-radius: 999px; font-size: .85rem; padding: 1px 8px; color: var(--tinte-2); }
+.ordner .zahl.neu-da { background: var(--blau); color: #fff; }
+.o-eingang svg { color: var(--blau); } .o-gesendet svg { color: #7a5af5; } .o-archiv svg { color: var(--gruen); } .o-papierkorb svg { color: var(--rot); }
+
+/* Postkarte mit dem Auftrag */
+.karte { position: relative; background: #fffdf6; border-radius: var(--rund); padding: 16px 16px 14px; flex: 1; min-height: 0; overflow: auto;
+  background-image: repeating-linear-gradient(135deg, transparent 0 10px, rgba(61,109,242,.05) 10px 20px); background-size: 100% 6px; background-repeat: no-repeat;
+  box-shadow: inset 0 0 0 2px #f3e6bf; }
+.karte .briefmarke { position: absolute; top: 12px; right: 12px; }
+.karte .wer { color: var(--tinte-2); font-weight: 700; font-size: .9rem; margin: 2px 0 6px; }
+.karte h2 { font-size: 1.2rem; line-height: 1.3; margin: 0 72px 10px 0; }
+.karte .tipp { color: var(--tinte-2); font-size: .95rem; line-height: 1.4; margin: 0 0 10px; }
+.punkte { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.punkte i { width: 16px; height: 16px; border-radius: 50%; background: var(--linie); }
+.punkte i.ok { background: var(--gruen); }
+.punkte i.jetzt { background: var(--gelb); box-shadow: 0 0 0 3px #ffe7a3; }
+.rueck { border-radius: 12px; padding: 10px 12px; font-size: .95rem; line-height: 1.4; margin-top: 10px; }
+.rueck.fehlt { background: #fff1f1; box-shadow: inset 0 0 0 2px #f6c9cb; }
+.rueck.fehlt ul { margin: 6px 0 0; padding-left: 20px; }
+.rueck.gut { background: #eaf8f1; box-shadow: inset 0 0 0 2px #bfe6d2; font-weight: 700; }
+
+/* Briefmarke (Absender-Bild) */
+.briefmarke { --c: var(--blau); width: 48px; height: 48px; flex: none; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.05rem;
+  background: var(--c); border-radius: 8px; outline: 3px dotted rgba(255,255,255,.9); outline-offset: -5px; box-shadow: 0 0 0 2px var(--c); }
+.briefmarke.gross { width: 58px; height: 58px; font-size: 1.25rem; }
+.stempel { width: 64px; height: 64px; font-size: .95rem; line-height: 1.05; text-align: center; color: var(--tinte); }
+.stempel svg.ic { width: 30px; height: 30px; stroke-width: 3; }
+.stempel.knall { animation: knall .6s cubic-bezier(.2,1.6,.4,1); }
+@keyframes knall { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.35) rotate(-12deg); } 100% { transform: scale(1) rotate(0); } }
+
+/* ——— Liste ——— */
+.listenkopf { padding: 16px 18px 10px; display: flex; align-items: baseline; gap: 10px; border-bottom: 2px solid var(--papier-2); }
+.listenkopf h1 { margin: 0; font-size: 1.35rem; }
+.listenkopf span { color: var(--tinte-2); font-weight: 700; }
+.liste { overflow: auto; flex: 1; padding: 6px; }
+.eintrag { width: 100%; border: 0; background: transparent; display: grid; grid-template-columns: 48px 1fr auto; gap: 4px 12px; align-items: center; text-align: left; padding: 12px; border-radius: 14px; position: relative; }
+.eintrag:hover { background: var(--papier-2); }
+.eintrag[aria-current="true"] { background: var(--himmel); }
+.eintrag .briefmarke { grid-row: span 2; }
+.eintrag .von { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eintrag .zeit { color: var(--tinte-2); font-size: .85rem; }
+.eintrag .betreff { grid-column: 2 / 4; color: var(--tinte-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .95rem; }
+.eintrag.ungelesen .von, .eintrag.ungelesen .betreff { font-weight: 800; color: var(--tinte); }
+.eintrag.ungelesen::before { content: ""; position: absolute; left: 3px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--blau); }
+.eintrag.frisch { animation: rein .5s ease-out; }
+@keyframes rein { from { transform: translateX(-16px); opacity: 0; } to { transform: none; opacity: 1; } }
+.leer { text-align: center; color: var(--tinte-2); padding: 48px 24px; line-height: 1.5; }
+.leer svg { width: 56px; height: 56px; stroke-width: 1.5; color: var(--himmel-tief); display: block; margin: 0 auto 10px; }
+
+/* ——— Lesen und Schreiben ——— */
+.werkzeug { display: flex; gap: 8px; padding: 12px 14px; border-bottom: 2px solid var(--papier-2); flex-wrap: wrap; }
+.wk { border: 0; background: var(--papier-2); border-radius: 12px; padding: 10px 14px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+.wk:hover { background: var(--himmel); }
+.wk.gruen { color: var(--gruen); } .wk.rot { color: var(--rot); } .wk.blau { color: var(--blau); }
+.wk.gelb { background: var(--gelb); box-shadow: 0 3px 0 var(--gelb-tief); }
+.wk.gelb:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--gelb-tief); }
+.lesen { overflow: auto; flex: 1; padding: 22px 28px; }
+.lesen h2 { margin: 0 0 16px; font-size: 1.45rem; line-height: 1.25; }
+.absender { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
+.absender .n { font-weight: 800; }
+.absender .a { color: var(--tinte-2); font-size: .92rem; }
+.text { white-space: pre-wrap; line-height: 1.6; max-width: 62ch; font-size: 1.05rem; }
+.text .alt { color: var(--tinte-2); }
+.nichts { flex: 1; display: grid; place-items: center; text-align: center; color: var(--tinte-2); padding: 24px; }
+.nichts svg { width: 120px; height: 120px; margin-bottom: 8px; }
+
+.schreiben { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 8px 22px 18px; gap: 4px; }
+.feld { display: grid; grid-template-columns: 84px 1fr auto; align-items: center; gap: 10px; border-bottom: 2px solid var(--papier-2); padding: 6px 0; }
+.feld label { font-weight: 800; color: var(--tinte-2); }
+.feld input { border: 0; background: transparent; padding: 10px 4px; font-size: 1.05rem; min-width: 0; }
+.feld input:focus { outline: none; }
+.feld:focus-within { border-bottom-color: var(--blau); }
+.schreiben textarea { flex: 1; border: 0; resize: none; padding: 14px 4px; line-height: 1.6; font-size: 1.05rem; min-height: 180px; }
+.schreiben textarea:focus { outline: none; }
+.hinweis { background: #fff6dc; border-radius: 12px; padding: 10px 14px; font-weight: 700; margin: 6px 0; }
+
+/* Adressbuch */
+.adressbuch { position: absolute; z-index: 5; right: 0; top: calc(100% + 6px); width: min(420px, 90vw); background: var(--papier); border-radius: 16px; box-shadow: 0 12px 40px rgba(31,42,85,.2); padding: 8px; }
+.adressbuch button { width: 100%; border: 0; background: transparent; display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 12px; text-align: left; }
+.adressbuch button:hover { background: var(--papier-2); }
+.adressbuch .briefmarke { width: 38px; height: 38px; font-size: .9rem; }
+.adressbuch small { display: block; color: var(--tinte-2); }
+
+/* Toast und Start */
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--tinte); color: #fff; padding: 12px 20px; border-radius: 999px; font-weight: 700; display: flex; gap: 10px; align-items: center; box-shadow: 0 8px 24px rgba(31,42,85,.3); z-index: 20; animation: hoch .3s ease-out; }
+@keyframes hoch { from { transform: translate(-50%, 20px); opacity: 0; } }
+.schleier { position: fixed; inset: 0; background: rgba(31,42,85,.35); display: grid; place-items: center; z-index: 30; padding: 20px; }
+.dialog { background: var(--papier); border-radius: 26px; padding: 30px 34px; width: min(520px, 100%); box-shadow: 0 24px 60px rgba(31,42,85,.3); }
+.dialog h1 { margin: 6px 0 8px; font-size: 1.8rem; }
+.dialog p { line-height: 1.5; color: var(--tinte-2); margin: 0 0 16px; }
+.dialog input { width: 100%; border: 2px solid var(--linie); border-radius: 14px; padding: 12px 14px; font-size: 1.2rem; }
+.dialog input:focus { outline: none; border-color: var(--blau); }
+.dialog .zeile { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.dialog .adr { margin-top: 10px; font-weight: 700; color: var(--tinte); min-height: 1.4em; }
+.dialog ul { line-height: 1.7; margin: 0 0 8px; padding-left: 22px; }
+
+@media (max-width: 980px) { .haupt { grid-template-columns: 1fr; } .spalte { min-height: 300px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="kopf">
+    <div class="marke" aria-label="Brieftaube">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <ellipse cx="30" cy="38" rx="20" ry="14" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
+        <circle cx="44" cy="24" r="10" fill="#fff" stroke="#1f2a55" stroke-width="3"/>
+        <path d="M53 23 l7 3 -7 3z" fill="#ffc53d" stroke="#1f2a55" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="46" cy="22" r="2" fill="#1f2a55"/>
+        <path d="M14 34 q10 -12 24 -2 q-8 10 -24 2z" fill="#c5dcfb" stroke="#1f2a55" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="18" y="44" width="16" height="11" rx="2" fill="#ffc53d" stroke="#1f2a55" stroke-width="2.5" transform="rotate(-8 26 50)"/>
+        <path d="M19 45 l7 5 7 -6" fill="none" stroke="#1f2a55" stroke-width="2" transform="rotate(-8 26 50)"/>
+      </svg>
+      Brieftaube
+    </div>
+    <div class="luft"></div>
+    <div class="meine" id="meine"></div>
+    <button class="knopf-leise" id="vonvorn" title="Alles zurücksetzen">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg> Von vorn
+    </button>
+  </header>
+
+  <main class="haupt">
+    <aside class="spalte seite">
+      <button class="neu" id="neuKnopf"><svg class="ic" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Neue E-Mail</button>
+      <nav class="ordner" id="ordner" aria-label="Ordner"></nav>
+      <section class="karte" id="karte" aria-live="polite"></section>
+    </aside>
+    <section class="spalte" aria-label="E-Mails">
+      <div class="listenkopf"><h1 id="listTitel"></h1><span id="listZahl"></span></div>
+      <div class="liste" id="liste"></div>
+    </section>
+    <section class="spalte" id="rechts" aria-label="Lesen und Schreiben"></section>
+  </main>
+</div>
+
+<script>
+'use strict';
+// ——— Symbole ———
+const IC = {
+  eingang: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z"/>',
+  gesendet: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  archiv: '<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+  papierkorb: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  antworten: '<path d="M9 17 4 12l5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/>',
+  weiter: '<path d="m15 17 5-5-5-5"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/>',
+  zurueck: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>',
+  buch: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5Z"/><path d="M4 19.5V21h16"/><circle cx="12" cy="9" r="2.5"/><path d="M8.5 14c.8-1.6 2-2.3 3.5-2.3s2.7.7 3.5 2.3"/>',
+  senden: '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+  weg: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  haken: '<path d="M20 6 9 17l-5-5"/>',
+  post: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
+};
+const ic = (n) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+
+// ——— Menschen im Adressbuch (alle erfunden) ———
+const KONTAKTE = [
+  { name: 'Frau Sonne', rolle: 'deine Klassenlehrerin', adr: 'sonne@schule-am-see.de', farbe: '#f59e0b', kurz: 'FS' },
+  { name: 'Tom', rolle: 'dein Freund', adr: 'tom@brieftaube.de', farbe: '#3d6df2', kurz: 'T' },
+  { name: 'Lina', rolle: 'Klassensprecherin', adr: 'lina@brieftaube.de', farbe: '#d946ef', kurz: 'L' },
+  { name: 'Oma Hilde', rolle: 'deine Oma', adr: 'oma.hilde@brieftaube.de', farbe: '#2e9e6b', kurz: 'OH' },
+  { name: 'Herr Kraus', rolle: 'Hausmeister', adr: 'kraus@schule-am-see.de', farbe: '#64748b', kurz: 'HK' },
+  { name: 'Bücherei Seestadt', rolle: 'Bücherei', adr: 'info@buecherei-seestadt.de', farbe: '#0ea5a4', kurz: 'B' },
+];
+const WERBUNG = { name: 'Mega-Deals', adr: 'news@mega-deals.shop', farbe: '#e0474c', kurz: 'M' };
+const POST = { name: 'Brieftaube-Post', adr: 'post@brieftaube.de', farbe: '#1f2a55', kurz: 'P' };
+const person = (adr) => KONTAKTE.find(k => k.adr === adr) || [WERBUNG, POST].find(k => k.adr === adr);
+const MARKE_ALT = '———— Ursprüngliche E-Mail ————';
+const MARKE_WG = '———— Weitergeleitete E-Mail ————';
+
+// ——— Startpost ———
+function startMails(s) {
+  return [
+    { id: 'sonne1', ordner: 'eingang', von: 'sonne@schule-am-see.de', betreff: 'Willkommen bei Brieftaube', zeit: '08:05', gelesen: false,
+      text: `Hallo ${s.name},\n\nwillkommen in deinem E-Mail-Programm! Hier übst du alles, was man mit E-Mails machen kann: lesen, schreiben, antworten, weiterleiten, aufräumen.\n\nLinks auf der Postkarte steht immer dein nächster Auftrag.\n\nViel Spaß!\nFrau Sonne` },
+    { id: 'werbung', ordner: 'eingang', von: WERBUNG.adr, betreff: 'NUR HEUTE: 1000 Sticker GRATIS!!!', zeit: '07:48', gelesen: false,
+      text: `Hey du!!!\n\nKlick JETZT und hol dir 1000 Sticker. Nur heute! Nur für dich!\n\nDein Mega-Deals-Team` },
+    { id: 'lina0', ordner: 'eingang', von: 'lina@brieftaube.de', betreff: 'Fotos vom Sportfest', zeit: 'Gestern', gelesen: true,
+      text: `Hi ${s.name},\n\ndie Fotos vom Sportfest sind super geworden. Ich zeig sie dir in der Pause.\n\nLina` },
+    { id: 'oma', ordner: 'papierkorb', von: 'oma.hilde@brieftaube.de', betreff: 'Kuchen am Sonntag', zeit: 'Gestern', gelesen: true,
+      text: `Mein Schatz,\n\nam Sonntag backe ich Apfelkuchen. Kommst du mit Mama und Papa um 15 Uhr?\n\nDeine Oma Hilde` },
+  ];
+}
+
+// ——— Prüfhilfen ———
+const klein = (t) => t.toLowerCase();
+const eigen = (m) => { const t = m.text; const i = Math.min(...[t.indexOf(MARKE_ALT), t.indexOf(MARKE_WG)].map(x => x < 0 ? Infinity : x)); return (i === Infinity ? t : t.slice(0, i)).trim(); };
+const zeilen = (t) => t.split('\n').map(z => z.trim()).filter(Boolean);
+const hatAnrede = (m) => /^(hallo|hi|hey|liebe|lieber|sehr geehrte|sehr geehrter|guten tag|guten morgen|moin|servus)\b/i.test(zeilen(eigen(m))[0] || '');
+const hatGruss = (m) => zeilen(eigen(m)).slice(-3).some(z => /(gr(ü|ue)(ß|ss)|tsch(ü|ue)ss|bis bald|bis dann|bis morgen|bis samstag|bis später|\blg\b|\bmfg\b|ciao|bye)/i.test(z));
+const hatName = (m) => zeilen(eigen(m)).slice(-2).some(z => klein(z).includes(klein(S.name)));
+const enthaelt = (m, ...woerter) => woerter.some(w => klein(eigen(m)).includes(klein(w)));
+function form(m, fehlt, anredeName) {
+  if (!hatAnrede(m)) fehlt.push(`Fang mit einer Anrede an, zum Beispiel „Hallo ${anredeName || 'Tom'},“.`);
+  else if (anredeName && !klein(zeilen(eigen(m))[0]).includes(klein(anredeName.split(' ').pop()))) fehlt.push(`Sprich ${anredeName} in der Anrede mit Namen an.`);
+  if (!hatGruss(m)) fehlt.push('Hör mit einem Gruß auf, zum Beispiel „Viele Grüße“.');
+  if (!hatName(m)) fehlt.push(`Schreib unter den Gruß deinen Namen: ${S.name}.`);
+}
+
+// ——— Die Aufträge ———
+const AUFTRAEGE = [
+  { titel: 'Lies die E-Mail von Frau Sonne.', tipp: 'Klick im Posteingang auf ihre E-Mail.',
+    check: (e) => e.typ === 'geoeffnet' && e.mail.id === 'sonne1' },
+  { titel: 'Lösch die Werbung von Mega-Deals.', tipp: 'Öffne die E-Mail. Klick oben auf „Löschen“.',
+    check: (e) => e.typ === 'verschoben' && e.mail.id === 'werbung' && e.nach === 'papierkorb' },
+  { titel: 'Archiviere die E-Mail von Frau Sonne.', tipp: 'Archivieren heißt: Die E-Mail wird aufgehoben, ist aber aus dem Posteingang weg.',
+    check: (e) => e.typ === 'verschoben' && e.mail.id === 'sonne1' && e.nach === 'archiv' },
+  { titel: 'Hol die E-Mail von Oma Hilde aus dem Papierkorb zurück.', tipp: 'Öffne links den Papierkorb.',
+    check: (e) => e.typ === 'verschoben' && e.mail.id === 'oma' && e.nach === 'eingang' },
+  { titel: 'Schreib Frau Sonne eine neue E-Mail: Du bist morgen krank.', tipp: 'Klick auf „Neue E-Mail“. Ihre Adresse steht im Adressbuch.',
+    check: (e) => {
+      if (e.typ !== 'gesendet') return false;
+      const m = e.mail, fehlt = [];
+      if (m.an !== 'sonne@schule-am-see.de') fehlt.push('Die E-Mail muss an Frau Sonne gehen: sonne@schule-am-see.de');
+      if (!enthaelt(m, 'morgen')) fehlt.push('Schreib, wann: morgen.');
+      if (!enthaelt(m, 'krank', 'fehle', 'nicht kommen', 'nicht da', 'nicht in die schule')) fehlt.push('Schreib, dass du krank bist.');
+      form(m, fehlt, 'Frau Sonne');
+      return fehlt.length ? { fehlt } : true;
+    } },
+  { titel: 'Tom hat dir geschrieben. Antworte ihm: Du kommst um 15 Uhr.', tipp: 'Öffne Toms E-Mail. Klick auf „Antworten“.',
+    neu: (s) => [{ id: 'tom', von: 'tom@brieftaube.de', betreff: 'Samstag Tischtennis?', text: `Hi ${s.name},\n\nhast du Samstag Zeit? Wir spielen bei mir Tischtennis. Wann kannst du kommen?\n\nTom` }],
+    check: (e) => {
+      if (e.typ !== 'gesendet') return false;
+      const m = e.mail, fehlt = [];
+      if (!(m.art === 'antwort' && m.bezug === 'tom')) fehlt.push('Antworte auf Toms E-Mail: Öffne sie und klick auf „Antworten“.');
+      if (!enthaelt(m, '15')) fehlt.push('Schreib die Uhrzeit: 15 Uhr.');
+      form(m, fehlt, 'Tom');
+      return fehlt.length ? { fehlt } : true;
+    } },
+  { titel: 'Leite die E-Mail von Herrn Kraus an Lina weiter. Schreib einen Satz dazu.', tipp: 'Öffne die E-Mail. Klick auf „Weiterleiten“. Trag Linas Adresse ein.',
+    neu: () => [{ id: 'kraus', von: 'kraus@schule-am-see.de', betreff: 'Fußballplatz gesperrt', text: 'Liebe Schülerinnen und Schüler,\n\nder Fußballplatz ist bis Freitag gesperrt. Der Rasen wird neu gemacht.\n\nBitte sagt es euren Klassensprecherinnen und Klassensprechern.\n\nHerr Kraus\nHausmeister' }],
+    check: (e) => {
+      if (e.typ !== 'gesendet') return false;
+      const m = e.mail, fehlt = [];
+      if (!(m.art === 'weiter' && m.bezug === 'kraus')) fehlt.push('Leite die E-Mail von Herrn Kraus weiter: Öffne sie und klick auf „Weiterleiten“.');
+      if (m.an !== 'lina@brieftaube.de') fehlt.push('Die E-Mail muss an Lina gehen: lina@brieftaube.de');
+      if (eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push('Schreib über die weitergeleitete E-Mail einen Satz an Lina.');
+      return fehlt.length ? { fehlt } : true;
+    } },
+  { titel: 'Antworte der Bücherei. Frag, ob du das Buch eine Woche länger behalten darfst.', tipp: 'Eine Frage endet mit einem Fragezeichen.',
+    neu: (s) => [{ id: 'buecherei', von: 'info@buecherei-seestadt.de', betreff: 'Dein Buch muss zurück', text: `Hallo ${s.name},\n\ndein Buch „Das Geheimnis im Leuchtturm“ muss bis Freitag zurück in die Bücherei.\n\nViele Grüße\nDein Bücherei-Team` }],
+    check: (e) => {
+      if (e.typ !== 'gesendet') return false;
+      const m = e.mail, fehlt = [];
+      if (!(m.art === 'antwort' && m.bezug === 'buecherei')) fehlt.push('Antworte auf die E-Mail der Bücherei: Öffne sie und klick auf „Antworten“.');
+      if (!enthaelt(m, 'woche', 'länger', 'laenger')) fehlt.push('Frag nach einer Woche länger.');
+      if (!eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
+      form(m, fehlt);
+      return fehlt.length ? { fehlt } : true;
+    } },
+  { titel: 'Lina fragt nach dem Ausflug. Antworte ihr: Nenn den Tag und zwei Sachen zum Mitbringen.', tipp: 'Die Infos stehen in einer E-Mail von Frau Sonne.',
+    neu: (s) => [
+      { id: 'zoo', von: 'sonne@schule-am-see.de', betreff: 'Ausflug in den Zoo', text: `Liebe Klasse,\n\nam Dienstag fahren wir in den Zoo. Bringt bitte eine Regenjacke, eine Brotdose und etwas zu trinken mit.\n\nWir treffen uns um 8 Uhr am Schultor.\n\nViele Grüße\nFrau Sonne` },
+      { id: 'lina', von: 'lina@brieftaube.de', betreff: 'Ausflug??', text: `Hi ${s.name},\n\nich war krank. Weißt du, wann der Ausflug ist und was wir mitbringen sollen?\n\nLina` },
+    ],
+    check: (e) => {
+      if (e.typ !== 'gesendet') return false;
+      const m = e.mail, fehlt = [];
+      if (!(m.art === 'antwort' && m.bezug === 'lina')) fehlt.push('Antworte auf Linas E-Mail „Ausflug??“: Öffne sie und klick auf „Antworten“.');
+      if (!enthaelt(m, 'dienstag')) fehlt.push('Schreib, an welchem Tag der Ausflug ist.');
+      const sachen = [['regenjacke', 'jacke'], ['brotdose', 'brot', 'essen'], ['trinken', 'flasche', 'getränk']].filter(g => enthaelt(m, ...g)).length;
+      if (sachen < 2) fehlt.push('Nenn zwei Sachen, die man mitbringen soll.');
+      form(m, fehlt, 'Lina');
+      return fehlt.length ? { fehlt } : true;
+    } },
+  { titel: 'Räum auf: Am Ende ist dein Posteingang leer.', tipp: 'Was erledigt ist: archivieren. Was du nicht brauchst: löschen.',
+    check: () => S.mails.every(m => m.ordner !== 'eingang') },
+];
+
+// ——— Zustand ———
+const KEY = 'brieftaube-v1';
+let S = null;           // gespeicherter Zustand
+let ansicht = { ordner: 'eingang', offen: null, schreiben: null, hinweis: '', buch: false };
+let frisch = new Set();
+function speichern() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function laden() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+const jetzt = () => new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+const esc = (t) => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function adresseAus(name) {
+  return klein(name).trim().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/\s+/g, '.').replace(/[^a-z0-9.-]/g, '') + '@brieftaube.de';
+}
+
+// ——— Ereignisse und Aufträge ———
+function melde(e) {
+  const a = AUFTRAEGE[S.auftrag];
+  if (!a) return;
+  const r = a.check(e);
+  if (r === true) {
+    S.rueck = null; S.auftrag++; speichern();
+    render(); stempel();
+    toast(`${ic('haken')} Auftrag geschafft!`);
+    setTimeout(starteAuftrag, 1100);
+  } else if (r && r.fehlt) {
+    S.rueck = r.fehlt; speichern(); render();
+  }
+}
+function starteAuftrag() {
+  const a = AUFTRAEGE[S.auftrag];
+  if (!a) { render(); fertigDialog(); return; }
+  if (a.neu && !S.gestartet.includes(S.auftrag)) {
+    a.neu(S).forEach(m => { S.mails.unshift({ ...m, ordner: 'eingang', zeit: jetzt(), gelesen: false }); frisch.add(m.id); });
+    S.gestartet.push(S.auftrag);
+    toast(`${ic('post')} Neue E-Mail im Posteingang`);
+  }
+  speichern(); render();
+}
+
+// ——— Aktionen ———
+function oeffne(id) {
+  const m = S.mails.find(x => x.id === id);
+  ansicht.offen = id; ansicht.schreiben = null; ansicht.buch = false;
+  if (!m.gelesen) { m.gelesen = true; speichern(); }
+  render(); melde({ typ: 'geoeffnet', mail: m });
+}
+function verschiebe(id, nach) {
+  const m = S.mails.find(x => x.id === id);
+  m.ordner = nach; ansicht.offen = null; speichern();
+  const wort = { archiv: 'Archiviert', papierkorb: 'In den Papierkorb gelegt', eingang: 'Zurück im Posteingang' }[nach];
+  toast(`${ic(nach === 'eingang' ? 'zurueck' : nach)} ${wort}`);
+  render(); melde({ typ: 'verschoben', mail: m, nach });
+}
+function neueMail(art, bezugId) {
+  const b = bezugId && S.mails.find(x => x.id === bezugId);
+  let an = '', betreff = '', text = '';
+  if (art === 'antwort') {
+    const p = person(b.von);
+    an = b.von; betreff = 'AW: ' + b.betreff.replace(/^(AW|WG):\s*/i, '');
+    text = `\n\n\n${MARKE_ALT}\nVon: ${p ? p.name : b.von}\n${b.text}`;
+  } else if (art === 'weiter') {
+    const p = person(b.von);
+    betreff = 'WG: ' + b.betreff.replace(/^(AW|WG):\s*/i, '');
+    text = `\n\n\n${MARKE_WG}\nVon: ${p ? p.name : ''} <${b.von}>\nBetreff: ${b.betreff}\n\n${b.text}`;
+  }
+  ansicht.schreiben = { art: art || 'neu', bezug: bezugId || null, an, betreff, text };
+  ansicht.offen = null; ansicht.hinweis = ''; ansicht.buch = false;
+  render();
+  const ziel = document.getElementById(art === 'antwort' ? 'fText' : 'fAn');
+  if (ziel) { ziel.focus(); if (ziel.tagName === 'TEXTAREA') ziel.setSelectionRange(0, 0); }
+}
+function senden() {
+  const w = ansicht.schreiben;
+  w.an = document.getElementById('fAn').value.trim();
+  w.betreff = document.getElementById('fBetreff').value.trim();
+  w.text = document.getElementById('fText').value;
+  let h = '';
+  if (!w.an) h = 'Trag bei „An“ ein, wer die E-Mail bekommen soll.';
+  else if (!w.an.includes('@')) h = 'Eine E-Mail-Adresse hat immer ein @.';
+  else if (/\s/.test(w.an)) h = 'In einer E-Mail-Adresse gibt es keine Leerzeichen.';
+  else if (!w.betreff || /^(AW|WG):\s*$/i.test(w.betreff)) h = 'Schreib einen Betreff: In wenigen Wörtern, worum es geht.';
+  else if (!eigen({ text: w.text })) h = 'Deine E-Mail ist noch leer.';
+  if (h) { ansicht.hinweis = h; render(); return; }
+  const m = { id: 'g' + Date.now(), ordner: 'gesendet', von: S.adr, an: w.an.toLowerCase(), betreff: w.betreff, text: w.text.replace(/^\n+/, ''), zeit: jetzt(), gelesen: true, art: w.art, bezug: w.bezug };
+  S.mails.unshift(m);
+  ansicht.schreiben = null; ansicht.hinweis = ''; speichern();
+  toast(`${ic('senden')} Gesendet`);
+  render();
+  if (!person(m.an) && m.an !== S.adr) setTimeout(() => zurueckgekommen(m), 1500);
+  melde({ typ: 'gesendet', mail: m });
+}
+function zurueckgekommen(m) {
+  const id = 'post' + Date.now();
+  S.mails.unshift({ id, ordner: 'eingang', von: POST.adr, betreff: 'Nicht zugestellt: ' + m.betreff, zeit: jetzt(), gelesen: false,
+    text: `Deine E-Mail an\n\n${m.an}\n\nkonnte nicht zugestellt werden. Diese Adresse gibt es nicht.\n\nPrüf die Schreibweise: jeden Buchstaben, jeden Punkt und das @. Die richtigen Adressen stehen im Adressbuch.\n\nDeine Brieftaube-Post` });
+  frisch.add(id); speichern(); render();
+  toast(`${ic('post')} Neue E-Mail im Posteingang`);
+}
+
+// ——— Anzeige ———
+const ORDNER = [['eingang', 'Posteingang'], ['gesendet', 'Gesendet'], ['archiv', 'Archiv'], ['papierkorb', 'Papierkorb']];
+const LEER = {
+  eingang: 'Alles erledigt. Dein Posteingang ist leer.',
+  gesendet: 'Du hast noch nichts gesendet.',
+  archiv: 'Das Archiv ist leer. Hier landen E-Mails, die du aufheben willst.',
+  papierkorb: 'Der Papierkorb ist leer.',
+};
+function marke(adr, gross) {
+  const p = person(adr) || { farbe: '#7a5af5', kurz: klein(adr)[0].toUpperCase() };
+  return `<span class="briefmarke${gross ? ' gross' : ''}" style="--c:${p.farbe}" aria-hidden="true">${esc(p.kurz)}</span>`;
+}
+const nameVon = (adr) => (person(adr) || {}).name || adr;
+
+function render() {
+  document.getElementById('meine').innerHTML = `<span class="briefmarke" style="--c:#7a5af5;width:34px;height:34px;font-size:.85rem">${esc(S.name[0].toUpperCase())}</span><span>Du bist <b>${esc(S.name)}</b> · ${esc(S.adr)}</span>`;
+  // Ordner
+  document.getElementById('ordner').innerHTML = ORDNER.map(([k, t]) => {
+    const drin = S.mails.filter(m => m.ordner === k);
+    const n = k === 'eingang' ? drin.filter(m => !m.gelesen).length : drin.length;
+    return `<button class="o-${k}" data-ordner="${k}" aria-current="${ansicht.ordner === k}">${ic(k)} ${t}<span class="zahl${k === 'eingang' && n ? ' neu-da' : ''}">${n || ''}</span></button>`;
+  }).join('');
+  // Postkarte
+  const a = AUFTRAEGE[S.auftrag];
+  const punkte = AUFTRAEGE.map((_, i) => `<i class="${i < S.auftrag ? 'ok' : i === S.auftrag ? 'jetzt' : ''}"></i>`).join('');
+  document.getElementById('karte').innerHTML = a ? `
+      <span class="briefmarke stempel" id="stempel" style="--c:var(--gelb)">${S.auftrag + 1}<br>von ${AUFTRAEGE.length}</span>
+      <div class="wer">Dein Auftrag</div>
+      <h2>${esc(a.titel)}</h2>
+      <p class="tipp">${esc(a.tipp)}</p>
+      ${S.rueck ? `<div class="rueck fehlt"><b>Gesendet – aber für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : ''}
+      <div class="punkte" aria-label="${S.auftrag} von ${AUFTRAEGE.length} geschafft">${punkte}</div>`
+    : `<span class="briefmarke stempel" id="stempel" style="--c:var(--gruen);color:#fff">${ic('haken')}</span>
+      <div class="wer">Alle Aufträge</div><h2>Geschafft! Du kannst jetzt mit E-Mails umgehen.</h2>
+      <p class="tipp">Du kannst weiter üben: Schreib Tom oder Oma Hilde, was du willst.</p><div class="punkte">${punkte}</div>`;
+  // Liste
+  const titel = ORDNER.find(o => o[0] === ansicht.ordner)[1];
+  const liste = S.mails.filter(m => m.ordner === ansicht.ordner);
+  document.getElementById('listTitel').textContent = titel;
+  document.getElementById('listZahl').textContent = liste.length ? liste.length : '';
+  document.getElementById('liste').innerHTML = liste.length ? liste.map(m => {
+    const wer = m.ordner === 'gesendet' ? 'An: ' + nameVon(m.an) : nameVon(m.von);
+    return `<button class="eintrag${m.gelesen ? '' : ' ungelesen'}${frisch.has(m.id) ? ' frisch' : ''}" data-mail="${m.id}" aria-current="${ansicht.offen === m.id}">
+      ${marke(m.ordner === 'gesendet' ? m.an : m.von)}<span class="von">${esc(wer)}</span><span class="zeit">${esc(m.zeit)}</span><span class="betreff">${esc(m.betreff)}</span></button>`;
+  }).join('') : `<div class="leer">${ic(ansicht.ordner)}${LEER[ansicht.ordner]}</div>`;
+  frisch.clear();
+  // Rechts
+  const r = document.getElementById('rechts');
+  if (ansicht.schreiben) r.innerHTML = htmlSchreiben();
+  else if (ansicht.offen) r.innerHTML = htmlLesen(S.mails.find(m => m.id === ansicht.offen));
+  else r.innerHTML = `<div class="nichts"><div><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="14" y="30" width="92" height="64" rx="10" fill="#fff" stroke="#c5dcfb" stroke-width="4"/><path d="M16 36l44 30 44-30" fill="none" stroke="#c5dcfb" stroke-width="4" stroke-linejoin="round"/><rect x="78" y="40" width="18" height="20" rx="2" fill="#ffc53d"/></svg><p>Klick links auf eine E-Mail, um sie zu lesen.</p></div></div>`;
+}
+function htmlLesen(m) {
+  const imPapierkorb = m.ordner === 'papierkorb';
+  const knoepfe = imPapierkorb
+    ? `<button class="wk blau" data-tu="zurueck">${ic('zurueck')} Zurückholen</button>`
+    : `${m.ordner !== 'gesendet' ? `<button class="wk" data-tu="antworten">${ic('antworten')} Antworten</button>` : ''}
+       <button class="wk" data-tu="weiter">${ic('weiter')} Weiterleiten</button>
+       ${m.ordner !== 'archiv' ? `<button class="wk gruen" data-tu="archiv">${ic('archiv')} Archivieren</button>` : `<button class="wk blau" data-tu="zurueck">${ic('eingang')} In den Posteingang</button>`}
+       <button class="wk rot" data-tu="loeschen">${ic('papierkorb')} Löschen</button>`;
+  const von = m.ordner === 'gesendet' ? S.adr : m.von;
+  let text = esc(m.text);
+  [MARKE_ALT, MARKE_WG].forEach(mk => { const i = text.indexOf(mk); if (i >= 0) text = text.slice(0, i) + `<span class="alt">${text.slice(i)}</span>`; });
+  return `<div class="werkzeug">${knoepfe}</div>
+    <article class="lesen">
+      <h2>${esc(m.betreff)}</h2>
+      <div class="absender">${m.ordner === 'gesendet' ? `<span class="briefmarke gross" style="--c:#7a5af5">${esc(S.name[0].toUpperCase())}</span>` : marke(von, true)}
+        <div><div class="n">${esc(m.ordner === 'gesendet' ? S.name : nameVon(von))}</div>
+        <div class="a">von ${esc(von)} · an ${esc(m.an || S.adr)} · ${esc(m.zeit)}</div></div></div>
+      <div class="text">${text}</div>
+    </article>`;
+}
+function htmlSchreiben() {
+  const w = ansicht.schreiben;
+  const titel = { neu: 'Neue E-Mail', antwort: 'Antworten', weiter: 'Weiterleiten' }[w.art];
+  return `<div class="werkzeug"><button class="wk gelb" data-tu="senden">${ic('senden')} Senden</button>
+      <button class="wk" data-tu="verwerfen">${ic('weg')} Verwerfen</button>
+      <span style="margin-left:auto;align-self:center;font-weight:800;color:var(--tinte-2)">${titel}</span></div>
+    <div class="schreiben">
+      ${ansicht.hinweis ? `<div class="hinweis" role="alert">${esc(ansicht.hinweis)}</div>` : ''}
+      <div class="feld" style="position:relative"><label for="fAn">An</label><input id="fAn" autocomplete="off" spellcheck="false" value="${esc(w.an)}" placeholder="name@beispiel.de">
+        <button class="wk" data-tu="buch" type="button">${ic('buch')} Adressbuch</button>
+        ${ansicht.buch ? `<div class="adressbuch">${KONTAKTE.map(k => `<button type="button" data-adr="${k.adr}">${marke(k.adr)}<span><b>${esc(k.name)}</b> <small>${esc(k.rolle)} · ${esc(k.adr)}</small></span></button>`).join('')}</div>` : ''}
+      </div>
+      <div class="feld"><label for="fBetreff">Betreff</label><input id="fBetreff" autocomplete="off" value="${esc(w.betreff)}" placeholder="Worum geht es?"><span></span></div>
+      <textarea id="fText" aria-label="Text der E-Mail" placeholder="Hallo …">${esc(w.text)}</textarea>
+    </div>`;
+}
+function merkeEntwurf() {
+  const w = ansicht.schreiben; if (!w) return;
+  const f = (id) => document.getElementById(id);
+  if (f('fAn')) { w.an = f('fAn').value; w.betreff = f('fBetreff').value; w.text = f('fText').value; }
+}
+function stempel() { const s = document.getElementById('stempel'); if (s) { s.classList.remove('knall'); void s.offsetWidth; s.classList.add('knall'); } }
+let toastUhr;
+function toast(html) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.innerHTML = html;
+  document.body.appendChild(t); clearTimeout(toastUhr); toastUhr = setTimeout(() => t.remove(), 2200);
+}
+
+// ——— Dialoge ———
+function startDialog() {
+  const d = document.createElement('div'); d.className = 'schleier';
+  d.innerHTML = `<form class="dialog" id="startForm">
+      <div class="marke" style="font-size:1rem">${document.querySelector('.marke svg').outerHTML}</div>
+      <h1>Willkommen bei Brieftaube!</h1>
+      <p>Hier übst du E-Mails: lesen, schreiben, antworten, weiterleiten und aufräumen. Nichts davon wird wirklich verschickt.</p>
+      <label for="vorname" style="font-weight:800">Wie heißt du? Nur der Vorname.</label>
+      <input id="vorname" maxlength="20" autocomplete="off" required>
+      <div class="adr" id="vorschau"></div>
+      <div class="zeile"><button class="neu" type="submit">${ic('post')} Postfach öffnen</button></div>
+    </form>`;
+  document.body.appendChild(d);
+  const i = d.querySelector('#vorname');
+  i.addEventListener('input', () => { d.querySelector('#vorschau').textContent = i.value.trim() ? 'Deine Adresse: ' + adresseAus(i.value) : ''; });
+  d.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = i.value.trim().replace(/\s+/g, ' ');
+    if (!name) return;
+    S = { name, adr: adresseAus(name), auftrag: 0, gestartet: [], rueck: null, mails: [] };
+    S.mails = startMails(S); speichern(); d.remove(); render();
+  });
+  setTimeout(() => i.focus(), 50);
+}
+function fertigDialog() {
+  const d = document.createElement('div'); d.className = 'schleier';
+  d.innerHTML = `<div class="dialog"><span class="briefmarke stempel knall" style="--c:var(--gruen);color:#fff">${ic('haken')}</span>
+    <h1>Alle ${AUFTRAEGE.length} Aufträge geschafft!</h1>
+    <p>Das kannst du jetzt:</p>
+    <ul><li>E-Mails lesen, archivieren, löschen und zurückholen</li><li>eine neue E-Mail schreiben</li><li>antworten und weiterleiten</li><li>mit Anrede, Gruß und Namen</li></ul>
+    <div class="zeile"><button class="neu" id="weiterSpielen">${ic('post')} Weiter im Postfach</button></div></div>`;
+  document.body.appendChild(d);
+  d.querySelector('#weiterSpielen').addEventListener('click', () => d.remove());
+}
+
+// ——— Klicks ———
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.ordner) { merkeEntwurf(); ansicht.ordner = b.dataset.ordner; ansicht.offen = null; render(); return; }
+  if (b.dataset.mail) { oeffne(b.dataset.mail); return; }
+  if (b.dataset.adr) { merkeEntwurf(); const w = ansicht.schreiben; w.an = b.dataset.adr; ansicht.buch = false; render(); document.getElementById('fBetreff').focus(); return; }
+  if (b.id === 'neuKnopf') { neueMail(); return; }
+  if (b.id === 'vonvorn') { if (confirm('Wirklich von vorn anfangen? Alle E-Mails und Aufträge werden zurückgesetzt.')) { localStorage.removeItem(KEY); location.reload(); } return; }
+  const tu = b.dataset.tu; if (!tu) return;
+  const id = ansicht.offen;
+  if (tu === 'antworten') neueMail('antwort', id);
+  else if (tu === 'weiter') neueMail('weiter', id);
+  else if (tu === 'archiv') verschiebe(id, 'archiv');
+  else if (tu === 'loeschen') verschiebe(id, 'papierkorb');
+  else if (tu === 'zurueck') verschiebe(id, 'eingang');
+  else if (tu === 'senden') senden();
+  else if (tu === 'verwerfen') { ansicht.schreiben = null; ansicht.hinweis = ''; render(); }
+  else if (tu === 'buch') { merkeEntwurf(); ansicht.buch = !ansicht.buch; render(); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ansicht.buch) { merkeEntwurf(); ansicht.buch = false; render(); } });
+
+// ——— Start ———
+S = laden();
+if (S && S.mails) render(); else startDialog();
+</script>
+</body>
+</html>
