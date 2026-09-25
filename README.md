@@ -1,6 +1,6 @@
-# Brieftaube – dein E-Mail-Programm zum Üben
+# TrappiPost – dein E-Mail-Programm zum Üben
 
-**Jetzt spielen:** https://altra102.github.io/brieftaube/
+**Jetzt spielen:** https://altra102.github.io/trappipost/
 
 Ein kinderfreundliches E-Mail-Programm für den Informatikunterricht (Klasse 5/6).
 Nichts wird wirklich verschickt: Alle Personen und Adressen sind erfunden.
@@ -24,6 +24,14 @@ Nach dem Senden prüft das Programm die Form: Adresse, Betreff, Anrede, Gruß, N
 und die verlangte Info. Es sagt, was noch fehlt. Eine falsche Adresse kommt als
 „Nicht zugestellt“ zurück.
 
+## Der Laptop
+
+Das Programm läuft auf einem gezeichneten Laptop auf einem Schreibtisch. Die
+Tastatur (deutsches QWERTZ, mit Umschalt- und AltGr-Zeichen) leuchtet bei jedem
+Tastendruck mit. „Näher ran“ zoomt an den Bildschirm heran, „Ganzer Laptop“ wieder
+zurück. Das Maskottchen ist der Trappi-Wagen aus [Trappi](https://trappi.eu) als
+Postwagen.
+
 ## Spiel auf Zeit
 
 Nach den zehn Aufträgen kommen endlos neue Aufgaben (antworten, neu schreiben,
@@ -34,7 +42,7 @@ Läuft die Zeit ab, ist ein Herz weg. Nach drei Herzen ist die Runde vorbei;
 ## Technik
 
 Eine einzelne HTML-Datei ohne Abhängigkeiten, alle Bilder als selbst gezeichnetes SVG. Der Stand wird im Browser gespeichert
-(`localStorage`, Schlüssel `brieftaube-v1`); „Von vorn“ setzt alles zurück.
+(`localStorage`, Schlüssel `trappipost-v1`); „Von vorn“ setzt alles zurück.
 
 ## Lizenz
 
