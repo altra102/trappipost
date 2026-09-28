@@ -23,14 +23,15 @@ Zehn Aufträge, von leicht nach schwer:
 Ordner: Posteingang, Entwürfe, Gesendet, Archiv, Papierkorb. Beim Schreiben kann man
 „Als Entwurf speichern“ und später weiterschreiben.
 
-Nach dem Senden prüft das Programm die Form: Adresse, Betreff, Anrede, Gruß, Name
-und die verlangte Info. Es sagt, was noch fehlt. Eine falsche Adresse kommt als
-„Nicht zugestellt“ zurück.
+Geprüft wird nur, ob man das Richtige tut: an die richtige Adresse senden, die
+richtige E-Mail beantworten oder weiterleiten, archivieren, löschen, zurückholen. Eine
+E-Mail braucht eine Adresse, einen Betreff und etwas Text, was genau drinsteht, ist egal.
+Fehlt etwas, sagt das Programm, was. Eine falsche Adresse kommt als „Nicht zugestellt“ zurück.
+Aufträge ohne Schreiben gelten auch dann, wenn man sie schon vorher erledigt hat.
 
-Die Prüfung verzeiht Rechtschreibfehler: Groß- und Kleinschreibung, Umlaute, doppelte
-Buchstaben und einzelne Tippfehler („Grüse“, „Dinstag“, „krang“) zählen trotzdem. Nur
-Zahlen und Adressen müssen genau stimmen. Aufträge ohne Schreiben (lesen, löschen,
-archivieren, zurückholen, aufräumen) gelten auch dann, wenn man sie schon vorher erledigt hat.
+Mit `INHALT_PRUEFEN = true` in `index.html` prüft das Programm zusätzlich den Inhalt:
+Anrede, Gruß, Name und die verlangte Info. Rechtschreibfehler verzeiht es dabei
+(„Grüse“, „Dinstag“, „krang“), nur Zahlen müssen genau stimmen.
 
 ## Der Laptop
 

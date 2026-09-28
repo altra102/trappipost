@@ -316,6 +316,9 @@ function startMails(s) {
 }
 
 // ——— Prüfhilfen ———
+// Aus: Es zählt nur, dass die richtige Aktion gemacht wird (richtige Adresse, richtige E-Mail beantwortet/weitergeleitet,
+// Betreff und Text nicht leer). An: Zusätzlich werden Inhalt, Anrede, Gruß und Name geprüft.
+const INHALT_PRUEFEN = false;
 // Kinder schreiben nicht fehlerfrei, darum wird tolerant verglichen: Groß/klein, Umlaute,
 // doppelte Buchstaben und ie/ck/th/v/dt/tz werden angeglichen. Ein Wort ab 5 Buchstaben
 // darf dann noch einen Tippfehler haben, ab 8 Buchstaben zwei. Zahlen müssen stimmen.
@@ -376,9 +379,11 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (m.an !== 'sonne@schule-am-see.de') fehlt.push('Die E-Mail muss an Frau Sonne gehen: sonne@schule-am-see.de');
-      if (!enthaelt(m, 'morgen')) fehlt.push('Schreib, wann: morgen.');
-      if (!enthaelt(m, 'krank', 'fehle', 'nicht kommen', 'nicht da', 'nicht in die schule', 'nicht zur schule', 'fieber', 'erkältet', 'grippe', 'husten', 'schnupfen', 'weh', 'schmerz', 'übel', 'arzt')) fehlt.push('Schreib, dass du krank bist.');
-      form(m, fehlt, 'Frau Sonne');
+      if (INHALT_PRUEFEN) {
+        if (!enthaelt(m, 'morgen')) fehlt.push('Schreib, wann: morgen.');
+        if (!enthaelt(m, 'krank', 'fehle', 'nicht kommen', 'nicht da', 'nicht in die schule', 'nicht zur schule', 'fieber', 'erkältet', 'grippe', 'husten', 'schnupfen', 'weh', 'schmerz', 'übel', 'arzt')) fehlt.push('Schreib, dass du krank bist.');
+        form(m, fehlt, 'Frau Sonne');
+      }
       return fehlt.length ? { fehlt } : true;
     } },
   { titel: 'Tom hat dir geschrieben. Antworte ihm: Du kommst um 15 Uhr.', tipp: 'Öffne Toms E-Mail. Klick auf „Antworten“.',
@@ -387,8 +392,10 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'tom')) fehlt.push('Antworte auf Toms E-Mail: Öffne sie und klick auf „Antworten“.');
-      if (!enthaelt(m, '15', 'fünfzehn', '3 uhr', 'drei uhr')) fehlt.push('Schreib die Uhrzeit: 15 Uhr.');
-      form(m, fehlt, 'Tom');
+      if (INHALT_PRUEFEN) {
+        if (!enthaelt(m, '15', 'fünfzehn', '3 uhr', 'drei uhr')) fehlt.push('Schreib die Uhrzeit: 15 Uhr.');
+        form(m, fehlt, 'Tom');
+      }
       return fehlt.length ? { fehlt } : true;
     } },
   { titel: 'Leite die E-Mail von Herrn Kraus an Lina weiter. Schreib einen Satz dazu.', tipp: 'Öffne die E-Mail. Klick auf „Weiterleiten“. Trag Linas Adresse ein.',
@@ -398,7 +405,7 @@ const AUFTRAEGE = [
       const m = e.mail, fehlt = [];
       if (!(m.art === 'weiter' && m.bezug === 'kraus')) fehlt.push('Leite die E-Mail von Herrn Kraus weiter: Öffne sie und klick auf „Weiterleiten“.');
       if (m.an !== 'lina@trappipost.de') fehlt.push('Die E-Mail muss an Lina gehen: lina@trappipost.de');
-      if (eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push('Schreib über die weitergeleitete E-Mail einen Satz an Lina.');
+      if (INHALT_PRUEFEN && eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push('Schreib über die weitergeleitete E-Mail einen Satz an Lina.');
       return fehlt.length ? { fehlt } : true;
     } },
   { titel: 'Antworte der Bücherei. Frag, ob du das Buch eine Woche länger behalten darfst.', tipp: 'Eine Frage endet mit einem Fragezeichen.',
@@ -407,9 +414,11 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'buecherei')) fehlt.push('Antworte auf die E-Mail der Bücherei: Öffne sie und klick auf „Antworten“.');
-      if (!enthaelt(m, 'woche', 'länger', 'verlängern', 'tage', 'behalten')) fehlt.push('Frag nach einer Woche länger.');
-      if (!eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
-      form(m, fehlt);
+      if (INHALT_PRUEFEN) {
+        if (!enthaelt(m, 'woche', 'länger', 'verlängern', 'tage', 'behalten')) fehlt.push('Frag nach einer Woche länger.');
+        if (!eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
+        form(m, fehlt);
+      }
       return fehlt.length ? { fehlt } : true;
     } },
   { titel: 'Lina fragt nach dem Ausflug. Antworte ihr: Nenn den Tag und zwei Sachen zum Mitbringen.', tipp: 'Die Infos stehen in einer E-Mail von Frau Sonne.',
@@ -421,10 +430,12 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'lina')) fehlt.push('Antworte auf Linas E-Mail „Ausflug??“: Öffne sie und klick auf „Antworten“.');
-      if (!enthaelt(m, 'dienstag')) fehlt.push('Schreib, an welchem Tag der Ausflug ist.');
-      const sachen = [['regenjacke', 'jacke'], ['brotdose', 'brot', 'dose', 'essen', 'frühstück'], ['trinken', 'flasche', 'getränk', 'wasser', 'saft']].filter(g => enthaelt(m, ...g)).length;
-      if (sachen < 2) fehlt.push('Nenn zwei Sachen, die man mitbringen soll.');
-      form(m, fehlt, 'Lina');
+      if (INHALT_PRUEFEN) {
+        if (!enthaelt(m, 'dienstag')) fehlt.push('Schreib, an welchem Tag der Ausflug ist.');
+        const sachen = [['regenjacke', 'jacke'], ['brotdose', 'brot', 'dose', 'essen', 'frühstück'], ['trinken', 'flasche', 'getränk', 'wasser', 'saft']].filter(g => enthaelt(m, ...g)).length;
+        if (sachen < 2) fehlt.push('Nenn zwei Sachen, die man mitbringen soll.');
+        form(m, fehlt, 'Lina');
+      }
       return fehlt.length ? { fehlt } : true;
     } },
   { titel: 'Räum auf: Am Ende ist dein Posteingang leer.', tipp: 'Was erledigt ist: archivieren. Was du nicht brauchst: löschen.',
@@ -511,6 +522,7 @@ function neueEndlosAufgabe() {
 }
 function pruefeEndlos(sp, e) {
   const pruefeText = (m, fehlt) => {
+    if (!INHALT_PRUEFEN) return;
     sp.woerter.forEach(w => { if (!enthaelt(m, ...w.alts)) fehlt.push(w.hinweis); });
     if (sp.frage && !eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
   };
@@ -529,14 +541,14 @@ function pruefeEndlos(sp, e) {
   const m = e.mail, fehlt = [];
   if (sp.typ === 'antwort') {
     if (!(m.art === 'antwort' && m.bezug === sp.id)) fehlt.push('Antworte auf die richtige E-Mail: Öffne sie und klick auf „Antworten“.');
-    pruefeText(m, fehlt); form(m, fehlt, sp.anrede);
+    pruefeText(m, fehlt); if (INHALT_PRUEFEN) form(m, fehlt, sp.anrede);
   } else if (sp.typ === 'neu') {
     if (m.an !== sp.an) fehlt.push(`Die E-Mail muss an diese Adresse gehen: ${sp.an}`);
-    pruefeText(m, fehlt); form(m, fehlt, sp.anrede);
+    pruefeText(m, fehlt); if (INHALT_PRUEFEN) form(m, fehlt, sp.anrede);
   } else if (sp.typ === 'weiter') {
     if (!(m.art === 'weiter' && m.bezug === sp.id)) fehlt.push('Leite die richtige E-Mail weiter: Öffne sie und klick auf „Weiterleiten“.');
     if (m.an !== sp.an) fehlt.push(`Die E-Mail muss an ${sp.wem} gehen: ${sp.an}`);
-    if (eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push(`Schreib über die weitergeleitete E-Mail einen Satz an ${sp.wem}.`);
+    if (INHALT_PRUEFEN && eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push(`Schreib über die weitergeleitete E-Mail einen Satz an ${sp.wem}.`);
   }
   return fehlt.length ? { fehlt } : true;
 }
