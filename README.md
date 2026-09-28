@@ -27,6 +27,11 @@ Nach dem Senden prüft das Programm die Form: Adresse, Betreff, Anrede, Gruß, N
 und die verlangte Info. Es sagt, was noch fehlt. Eine falsche Adresse kommt als
 „Nicht zugestellt“ zurück.
 
+Die Prüfung verzeiht Rechtschreibfehler: Groß- und Kleinschreibung, Umlaute, doppelte
+Buchstaben und einzelne Tippfehler („Grüse“, „Dinstag“, „krang“) zählen trotzdem. Nur
+Zahlen und Adressen müssen genau stimmen. Aufträge ohne Schreiben (lesen, löschen,
+archivieren, zurückholen, aufräumen) gelten auch dann, wenn man sie schon vorher erledigt hat.
+
 ## Der Laptop
 
 Das Programm läuft auf einem gezeichneten Laptop auf einem Schreibtisch (Fake-3D, alles selbst gezeichnetes SVG). Die

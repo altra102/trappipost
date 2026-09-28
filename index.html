@@ -316,37 +316,68 @@ function startMails(s) {
 }
 
 // ——— Prüfhilfen ———
+// Kinder schreiben nicht fehlerfrei, darum wird tolerant verglichen: Groß/klein, Umlaute,
+// doppelte Buchstaben und ie/ck/th/v/dt/tz werden angeglichen. Ein Wort ab 5 Buchstaben
+// darf dann noch einen Tippfehler haben, ab 8 Buchstaben zwei. Zahlen müssen stimmen.
 const klein = (t) => t.toLowerCase();
-const eigen = (m) => { const t = m.text; const i = Math.min(...[t.indexOf(MARKE_ALT), t.indexOf(MARKE_WG)].map(x => x < 0 ? Infinity : x)); return (i === Infinity ? t : t.slice(0, i)).trim(); };
-const zeilen = (t) => t.split('\n').map(z => z.trim()).filter(Boolean);
-const hatAnrede = (m) => /^(hallo|hi|hey|liebe|lieber|sehr geehrte|sehr geehrter|guten tag|guten morgen|moin|servus)\b/i.test(zeilen(eigen(m))[0] || '');
-const hatGruss = (m) => zeilen(eigen(m)).slice(-3).some(z => /(gr(ü|ue)(ß|ss)|tsch(ü|ue)ss|bis bald|bis dann|bis morgen|bis samstag|bis später|\blg\b|\bmfg\b|ciao|bye)/i.test(z));
-const hatName = (m) => zeilen(eigen(m)).slice(-2).some(z => klein(z).includes(klein(S.name)));
-const enthaelt = (m, ...woerter) => woerter.some(w => klein(eigen(m)).includes(klein(w)));
+const norm = (t) => klein(t).replace(/ß/g, 'ss').replace(/ä|ae/g, 'a').replace(/ö|oe/g, 'o').replace(/ü|ue/g, 'u')
+  .replace(/ie/g, 'i').replace(/ck/g, 'k').replace(/th/g, 't').replace(/ph/g, 'f').replace(/dt/g, 't').replace(/tz/g, 'z').replace(/v/g, 'f')
+  .replace(/[^a-z0-9]+/g, ' ').replace(/([a-z])\1+/g, '$1').trim();
+// Wie viele Tippfehler trennen w vom ähnlichsten Stück von t?
+function abstand(w, t) {
+  let z = new Array(t.length + 1).fill(0);
+  for (let i = 1; i <= w.length; i++) {
+    const neu = [i];
+    for (let j = 1; j <= t.length; j++) neu[j] = Math.min(z[j] + 1, neu[j - 1] + 1, z[j - 1] + (w[i - 1] === t[j - 1] ? 0 : 1));
+    z = neu;
+  }
+  return Math.min(...z);
+}
+const erlaubt = (w) => w.split(' ').reduce((s, x) => s + (x.length >= 8 ? 2 : x.length >= 5 ? 1 : 0), 0);
+const zahlZusammen = (t) => t.replace(/([a-z]) (?=\d)/g, '$1').replace(/(\d) (?=[a-z])/g, '$1');
+function kommtVor(text, wort) {
+  const w = norm(wort), t = norm(text);
+  if (!w || !t) return false;
+  if (/\d/.test(w)) return new RegExp('(^|\\D)' + zahlZusammen(w) + '(\\D|$)').test(zahlZusammen(t));
+  const n = w.split(' ').length, ws = t.split(' ');
+  for (let i = 0; i + n <= ws.length; i++) if (abstand(w, ws.slice(i, i + n).join(' ')) <= erlaubt(w)) return true;
+  return false;
+}
+// Nur der eigene Text, ohne die zitierte E-Mail darunter (auch wenn die Trennlinie angeknabbert ist)
+const eigen = (m) => { const i = m.text.search(/^.*(——|Ursprüngliche E-Mail|Weitergeleitete E-Mail).*$|^Von: /m); return (i < 0 ? m.text : m.text.slice(0, i)).trim(); };
+const zeilen = (t) => t.split('\n').map(z => z.trim()).filter(z => norm(z));
+const hatAnrede = (m) => /^(hal|hel|hi$|hy$|hey|hei$|hai$|lib|sehr|ser$|gut|morg|moin|serf|grus|tag$|na$|yo$)/.test(norm(zeilen(eigen(m))[0] || '').split(' ')[0]);
+const istGruss = (z) => { const t = norm(z).split(' '); return /^(bis|dein|deine|din|dine|euer|eure)$/.test(t[0]) || t.some(w => /^(lg|glg|mfg|fg|by|bye|bai|cu|ciao|tschau|serfus|hdl|hdgdl)$/.test(w) || w.includes('grus') || abstand('tschus', w) <= 1); };
+const hatGruss = (m) => zeilen(eigen(m)).slice(-3).some(istGruss);
+const hatName = (m) => zeilen(eigen(m)).slice(-3).some(z => kommtVor(z, S.name.split(' ')[0]));
+const nennt = (z, wer) => wer.split(' ').filter(w => !/^(frau|herr|herrn)$/i.test(w)).concat(/\boma\b/i.test(wer) ? ['omi'] : []).some(w => kommtVor(z, w));
+const enthaelt = (m, ...woerter) => woerter.some(w => kommtVor(eigen(m), w));
 function form(m, fehlt, anredeName) {
   if (!hatAnrede(m)) fehlt.push(`Fang mit einer Anrede an, zum Beispiel „Hallo ${anredeName || 'Tom'},“.`);
-  else if (anredeName && !klein(zeilen(eigen(m))[0]).includes(klein(anredeName.split(' ').pop()))) fehlt.push(`Sprich ${anredeName} in der Anrede mit Namen an.`);
+  else if (anredeName && !nennt(zeilen(eigen(m))[0], anredeName)) fehlt.push(`Sprich ${anredeName} in der Anrede mit Namen an.`);
   if (!hatGruss(m)) fehlt.push('Hör mit einem Gruß auf, zum Beispiel „Viele Grüße“.');
-  if (!hatName(m)) fehlt.push(`Schreib unter den Gruß deinen Namen: ${S.name}.`);
+  if (!hatName(m)) fehlt.push(`Schreib unter den Gruß deinen Namen: ${S.name.split(' ')[0]}.`);
 }
 
 // ——— Die Aufträge ———
+// Aufträge ohne Schreiben prüfen den Zustand, nicht den Klick: Wer etwas schon vorher erledigt hat, bleibt nicht hängen.
+const mail = (id) => S.mails.find(m => m.id === id) || {};
 const AUFTRAEGE = [
   { titel: 'Lies die E-Mail von Frau Sonne.', tipp: 'Klick im Posteingang auf ihre E-Mail.',
-    check: (e) => e.typ === 'geoeffnet' && e.mail.id === 'sonne1' },
+    check: () => mail('sonne1').gelesen === true },
   { titel: 'Lösch die Werbung von Mega-Deals.', tipp: 'Öffne die E-Mail. Klick oben auf „Löschen“.',
-    check: (e) => e.typ === 'verschoben' && e.mail.id === 'werbung' && e.nach === 'papierkorb' },
+    check: () => mail('werbung').ordner === 'papierkorb' },
   { titel: 'Archiviere die E-Mail von Frau Sonne.', tipp: 'Archivieren heißt: Die E-Mail wird aufgehoben, ist aber aus dem Posteingang weg.',
-    check: (e) => e.typ === 'verschoben' && e.mail.id === 'sonne1' && e.nach === 'archiv' },
+    check: () => mail('sonne1').ordner === 'archiv' },
   { titel: 'Hol die E-Mail von Oma Hilde aus dem Papierkorb zurück.', tipp: 'Öffne links den Papierkorb.',
-    check: (e) => e.typ === 'verschoben' && e.mail.id === 'oma' && e.nach === 'eingang' },
+    check: () => ['eingang', 'archiv'].includes(mail('oma').ordner) },
   { titel: 'Schreib Frau Sonne eine neue E-Mail: Du bist morgen krank.', tipp: 'Klick auf „Neue E-Mail“. Ihre Adresse steht im Adressbuch.',
     check: (e) => {
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (m.an !== 'sonne@schule-am-see.de') fehlt.push('Die E-Mail muss an Frau Sonne gehen: sonne@schule-am-see.de');
       if (!enthaelt(m, 'morgen')) fehlt.push('Schreib, wann: morgen.');
-      if (!enthaelt(m, 'krank', 'fehle', 'nicht kommen', 'nicht da', 'nicht in die schule')) fehlt.push('Schreib, dass du krank bist.');
+      if (!enthaelt(m, 'krank', 'fehle', 'nicht kommen', 'nicht da', 'nicht in die schule', 'nicht zur schule', 'fieber', 'erkältet', 'grippe', 'husten', 'schnupfen', 'weh', 'schmerz', 'übel', 'arzt')) fehlt.push('Schreib, dass du krank bist.');
       form(m, fehlt, 'Frau Sonne');
       return fehlt.length ? { fehlt } : true;
     } },
@@ -356,7 +387,7 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'tom')) fehlt.push('Antworte auf Toms E-Mail: Öffne sie und klick auf „Antworten“.');
-      if (!enthaelt(m, '15')) fehlt.push('Schreib die Uhrzeit: 15 Uhr.');
+      if (!enthaelt(m, '15', 'fünfzehn', '3 uhr', 'drei uhr')) fehlt.push('Schreib die Uhrzeit: 15 Uhr.');
       form(m, fehlt, 'Tom');
       return fehlt.length ? { fehlt } : true;
     } },
@@ -376,7 +407,7 @@ const AUFTRAEGE = [
       if (e.typ !== 'gesendet') return false;
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'buecherei')) fehlt.push('Antworte auf die E-Mail der Bücherei: Öffne sie und klick auf „Antworten“.');
-      if (!enthaelt(m, 'woche', 'länger', 'laenger')) fehlt.push('Frag nach einer Woche länger.');
+      if (!enthaelt(m, 'woche', 'länger', 'verlängern', 'tage', 'behalten')) fehlt.push('Frag nach einer Woche länger.');
       if (!eigen(m).includes('?')) fehlt.push('Eine Frage braucht ein Fragezeichen: ?');
       form(m, fehlt);
       return fehlt.length ? { fehlt } : true;
@@ -391,7 +422,7 @@ const AUFTRAEGE = [
       const m = e.mail, fehlt = [];
       if (!(m.art === 'antwort' && m.bezug === 'lina')) fehlt.push('Antworte auf Linas E-Mail „Ausflug??“: Öffne sie und klick auf „Antworten“.');
       if (!enthaelt(m, 'dienstag')) fehlt.push('Schreib, an welchem Tag der Ausflug ist.');
-      const sachen = [['regenjacke', 'jacke'], ['brotdose', 'brot', 'essen'], ['trinken', 'flasche', 'getränk']].filter(g => enthaelt(m, ...g)).length;
+      const sachen = [['regenjacke', 'jacke'], ['brotdose', 'brot', 'dose', 'essen', 'frühstück'], ['trinken', 'flasche', 'getränk', 'wasser', 'saft']].filter(g => enthaelt(m, ...g)).length;
       if (sachen < 2) fehlt.push('Nenn zwei Sachen, die man mitbringen soll.');
       form(m, fehlt, 'Lina');
       return fehlt.length ? { fehlt } : true;
@@ -556,7 +587,7 @@ function starteAuftrag() {
     S.gestartet.push(S.auftrag);
     toast(`${ic('post')} Neue E-Mail im Posteingang`);
   }
-  speichern(); render();
+  speichern(); render(); melde({ typ: 'start' });
 }
 
 // ——— Spiel auf Zeit ———
@@ -638,7 +669,7 @@ function senden() {
   else if (!w.an.includes('@')) h = 'Eine E-Mail-Adresse hat immer ein @.';
   else if (/\s/.test(w.an)) h = 'In einer E-Mail-Adresse gibt es keine Leerzeichen.';
   else if (!w.betreff || /^(AW|WG):\s*$/i.test(w.betreff)) h = 'Schreib einen Betreff: In wenigen Wörtern, worum es geht.';
-  else if (!eigen({ text: w.text })) h = 'Deine E-Mail ist noch leer.';
+  else if (!eigen({ text: w.text })) h = w.art === 'neu' ? 'Deine E-Mail ist noch leer.' : 'Schreib deinen Text ganz oben ins Feld, über die Linie mit der alten E-Mail.';
   if (h) { ansicht.hinweis = h; render(); return; }
   const m = { id: 'g' + Date.now(), ordner: 'gesendet', von: S.adr, an: w.an.toLowerCase(), betreff: w.betreff, text: w.text.replace(/^\n+/, ''), zeit: jetzt(), gelesen: true, art: w.art, bezug: w.bezug };
   if (w.entwurf) S.mails = S.mails.filter(x => x.id !== w.entwurf);
@@ -1314,7 +1345,7 @@ layout();
 tagNacht();
 setInterval(tagNacht, 200);
 S = laden();
-if (S && S.mails) { render(); if (S.auftrag >= AUFTRAEGE.length && S.endlos && S.endlos.laeuft && !S.endlos.spec) starteAuftrag(); } else startDialog();
+if (S && S.mails) { render(); if (S.auftrag < AUFTRAEGE.length) melde({ typ: 'start' }); else if (S.auftrag >= AUFTRAEGE.length && S.endlos && S.endlos.laeuft && !S.endlos.spec) starteAuftrag(); } else startDialog();
 </script>
 </body>
 </html>
