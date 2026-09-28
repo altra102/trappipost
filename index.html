@@ -808,7 +808,7 @@ document.addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.ordner) { merkeEntwurf(); ansicht.ordner = b.dataset.ordner; ansicht.offen = null; render(); return; }
   if (b.dataset.mail) { oeffne(b.dataset.mail); return; }
-  if (b.dataset.adr) { merkeEntwurf(); const w = ansicht.schreiben; w.an = b.dataset.adr; ansicht.buch = false; render(); document.getElementById('fBetreff').focus(); return; }
+  if (b.dataset.adr) { merkeEntwurf(); const w = ansicht.schreiben; w.an = b.dataset.adr; document.getElementById('fAn').value = w.an; ansicht.buch = false; render(); document.getElementById('fBetreff').focus(); return; }
   if (b.id === 'neuKnopf') { neueMail(); return; }
   if (b.id === 'los') { neueRunde(); return; }
   if (b.id === 'vonvorn') { if (confirm('Wirklich von vorn anfangen? Alle E-Mails und Aufträge werden zurückgesetzt.')) { localStorage.removeItem(KEY); location.reload(); } return; }
