@@ -75,6 +75,8 @@ svg.ic { width: 1.25em; height: 1.25em; flex: none; stroke: currentColor; fill: 
 .rueck { border-radius: 12px; padding: 10px 12px; font-size: .95rem; line-height: 1.4; margin-top: 10px; }
 .rueck.fehlt { background: #fff1f1; box-shadow: inset 0 0 0 2px #f6c9cb; }
 .rueck.fehlt ul { margin: 6px 0 0; padding-left: 20px; }
+.rueck.kurz { font-weight: 700; margin: 0 72px 8px 0; color: #b42318; }
+#rechts > .rueck { margin: 12px 14px 0; font-size: 1.05rem; }
 .rueck.gut { background: #eaf8f1; box-shadow: inset 0 0 0 2px #bfe6d2; font-weight: 700; }
 
 .spielstand { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; font-weight: 800; }
@@ -209,7 +211,7 @@ body { overflow: hidden; background: #efd8bc; }
   <svg id="welt" viewBox="0 0 1600 1000" aria-hidden="true"></svg>
   <svg class="dampf" style="left:1478px;top:712px" viewBox="0 0 40 70" aria-hidden="true"><path d="M17 66q-12-18 2-32q12-12 0-28" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
   <svg class="dampf" style="left:1500px;top:726px" viewBox="0 0 40 70" aria-hidden="true"><path d="M19 62q-10-16 4-30q9-9 1-22" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
-  <div class="zettel" aria-hidden="true"><b>Nicht vergessen!</b>An · Betreff<br>Anrede<br>Text<br>Gruß + Name</div>
+  <div class="zettel" aria-hidden="true"><b>Nicht vergessen!</b>An: Adresse<br>Betreff<br>Text<br>Senden</div>
   <div class="toenung nacht" id="nacht" aria-hidden="true"></div>
   <div class="toenung abend" id="abend" aria-hidden="true"></div>
   <svg id="fenster" viewBox="0 0 262 372" aria-hidden="true"></svg>
@@ -305,7 +307,7 @@ const MARKE_WG = '———— Weitergeleitete E-Mail ————';
 function startMails(s) {
   return [
     { id: 'sonne1', ordner: 'eingang', von: 'sonne@schule-am-see.de', betreff: 'Willkommen bei TrappiPost', zeit: '08:05', gelesen: false,
-      text: `Hallo ${s.name},\n\nwillkommen in deinem E-Mail-Programm! Hier übst du alles, was man mit E-Mails machen kann: lesen, schreiben, antworten, weiterleiten, aufräumen.\n\nLinks auf der Postkarte steht immer dein nächster Auftrag.\n\nViel Spaß!\nFrau Sonne` },
+      text: `Hallo ${s.name},\n\nwillkommen in deinem E-Mail-Programm! Hier übst du alles, was man mit E-Mails machen kann: lesen, schreiben, antworten, weiterleiten, aufräumen.\n\nLinks unter den Ordnern steht immer dein nächster Auftrag.\n\nViel Spaß!\nFrau Sonne` },
     { id: 'werbung', ordner: 'eingang', von: WERBUNG.adr, betreff: 'NUR HEUTE: 1000 Sticker GRATIS!!!', zeit: '07:48', gelesen: false,
       text: `Hey du!!!\n\nKlick JETZT und hol dir 1000 Sticker. Nur heute! Nur für dich!\n\nDein Mega-Deals-Team` },
     { id: 'lina0', ordner: 'eingang', von: 'lina@trappipost.de', betreff: 'Fotos vom Sportfest', zeit: 'Gestern', gelesen: true,
@@ -365,13 +367,14 @@ function form(m, fehlt, anredeName) {
 // ——— Die Aufträge ———
 // Aufträge ohne Schreiben prüfen den Zustand, nicht den Klick: Wer etwas schon vorher erledigt hat, bleibt nicht hängen.
 const mail = (id) => S.mails.find(m => m.id === id) || {};
+const SONNE_IM_KORB = 'Frau Sonnes E-Mail liegt im Papierkorb. Öffne links den Papierkorb und hol sie mit „Zurückholen“ zurück.';
 const AUFTRAEGE = [
   { titel: 'Lies die E-Mail von Frau Sonne.', tipp: 'Klick im Posteingang auf ihre E-Mail.',
     check: () => mail('sonne1').gelesen === true },
-  { titel: 'Lösch die Werbung von Mega-Deals.', tipp: 'Öffne die E-Mail. Klick oben auf „Löschen“.',
-    check: () => mail('werbung').ordner === 'papierkorb' },
+  { titel: 'Lösch die Werbung von Mega-Deals.', tipp: 'Klick im Posteingang auf die Werbung. Dann oben auf „Löschen“.',
+    check: () => mail('werbung').ordner === 'papierkorb' || { fehlt: mail('sonne1').ordner === 'papierkorb' ? [SONNE_IM_KORB] : [] } },
   { titel: 'Archiviere die E-Mail von Frau Sonne.', tipp: 'Archivieren heißt: Die E-Mail wird aufgehoben, ist aber aus dem Posteingang weg.',
-    check: () => mail('sonne1').ordner === 'archiv' },
+    check: () => mail('sonne1').ordner === 'archiv' || { fehlt: mail('sonne1').ordner === 'papierkorb' ? [SONNE_IM_KORB] : [] } },
   { titel: 'Hol die E-Mail von Oma Hilde aus dem Papierkorb zurück.', tipp: 'Öffne links den Papierkorb.',
     check: () => ['eingang', 'archiv'].includes(mail('oma').ordner) },
   { titel: 'Schreib Frau Sonne eine neue E-Mail: Du bist morgen krank.', tipp: 'Klick auf „Neue E-Mail“. Ihre Adresse steht im Adressbuch.',
@@ -408,7 +411,7 @@ const AUFTRAEGE = [
       if (INHALT_PRUEFEN && eigen(m).split(/\s+/).filter(Boolean).length < 3) fehlt.push('Schreib über die weitergeleitete E-Mail einen Satz an Lina.');
       return fehlt.length ? { fehlt } : true;
     } },
-  { titel: 'Antworte der Bücherei. Frag, ob du das Buch eine Woche länger behalten darfst.', tipp: 'Eine Frage endet mit einem Fragezeichen.',
+  { titel: 'Antworte der Bücherei. Frag, ob du das Buch eine Woche länger behalten darfst.', tipp: 'Öffne die E-Mail der Bücherei. Klick auf „Antworten“.',
     neu: (s) => [{ id: 'buecherei', von: 'info@buecherei-seestadt.de', betreff: 'Dein Buch muss zurück', text: `Hallo ${s.name},\n\ndein Buch „Das Geheimnis im Leuchtturm“ muss bis Freitag zurück in die Bücherei.\n\nViele Grüße\nDein Bücherei-Team` }],
     check: (e) => {
       if (e.typ !== 'gesendet') return false;
@@ -578,7 +581,7 @@ function melde(e) {
     toast(`${ic('haken')} ${endlos ? 'Aufgabe' : 'Auftrag'} geschafft!`);
     setTimeout(starteAuftrag, 1100);
   } else if (r && r.fehlt) {
-    S.rueck = r.fehlt; speichern(); render();
+    S.rueck = r.fehlt.length ? r.fehlt : null; S.rueckSchreiben = e.typ === 'gesendet'; speichern(); render();
   }
 }
 function starteAuftrag() {
@@ -739,23 +742,24 @@ function render() {
   // Postkarte
   const a = AUFTRAEGE[S.auftrag];
   const punkte = AUFTRAEGE.map((_, i) => `<i class="${i < S.auftrag ? 'ok' : i === S.auftrag ? 'jetzt' : ''}"></i>`).join('');
-  const rueck = S.rueck ? `<div class="rueck fehlt"><b>Für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>Schreib die E-Mail noch einmal.</div>` : '';
+  const rueck = S.rueck ? `<div class="rueck fehlt kurz">Noch nicht geschafft. Rechts steht, was fehlt.</div>` : '';
+  const rueckRechts = S.rueck ? `<div class="rueck fehlt" role="alert"><b>Für den Auftrag fehlt noch:</b><ul>${S.rueck.map(f => `<li>${esc(f)}</li>`).join('')}</ul>${S.rueckSchreiben ? 'Schreib die E-Mail noch einmal.' : ''}</div>` : '';
   const sp = S.endlos && S.endlos.spec;
   document.getElementById('karte').innerHTML = a ? `
       <span class="briefmarke stempel" id="stempel" style="--c:var(--gelb)">${S.auftrag + 1}<br>von ${AUFTRAEGE.length}</span>
       <div class="wer">Dein Auftrag</div>
+      ${rueck}
       <h2>${esc(a.titel)}</h2>
       <p class="tipp">${esc(a.tipp)}</p>
-      ${rueck}
       <div class="punkte" aria-label="${S.auftrag} von ${AUFTRAEGE.length} geschafft">${punkte}</div>`
     : sp ? `
       <span class="briefmarke stempel" id="stempel" style="--c:var(--gruen);color:#fff">Nr.<br>${S.endlos.nr}</span>
       <div class="spielstand"><span class="herzen" aria-label="${S.endlos.herzen} Herzen">${[0, 1, 2].map(i => herz(i < S.endlos.herzen)).join('')}</span><span>${S.endlos.punkte} Punkte</span></div>
       <div class="uhr" id="uhr"><i style="width:${Math.max(0, 100 * (sp.bis - Date.now()) / (sp.sekunden * 1000))}%"></i></div>
       <div class="sek" id="sek">${Math.ceil(Math.max(0, sp.bis - Date.now()) / 1000)} s</div>
+      ${rueck}
       <h2>${esc(sp.titel)}</h2>
-      <p class="tipp">${esc(sp.tipp)}</p>
-      ${rueck}`
+      <p class="tipp">${esc(sp.tipp)}</p>`
     : `<span class="briefmarke stempel" id="stempel" style="--c:var(--gruen);color:#fff">${ic('haken')}</span>
       <div class="wer">Spiel auf Zeit${S.endlos ? ' · Rekord ' + S.endlos.rekord : ''}</div><h2>Immer neue Aufgaben, jede mit Countdown. Drei Herzen.</h2>
       <button class="neu" id="los">${ic('post')} ${S.endlos && S.endlos.rekord ? 'Neue Runde' : 'Los geht’s'}</button><div class="punkte" style="margin-top:12px">${punkte}</div>`;
@@ -772,9 +776,9 @@ function render() {
   frisch.clear();
   // Rechts
   const r = document.getElementById('rechts');
-  if (ansicht.schreiben) r.innerHTML = htmlSchreiben();
-  else if (ansicht.offen) r.innerHTML = htmlLesen(S.mails.find(m => m.id === ansicht.offen));
-  else r.innerHTML = `<div class="nichts"><div><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="14" y="30" width="92" height="64" rx="10" fill="#fff" stroke="#c5dcfb" stroke-width="4"/><path d="M16 36l44 30 44-30" fill="none" stroke="#c5dcfb" stroke-width="4" stroke-linejoin="round"/><rect x="78" y="40" width="18" height="20" rx="2" fill="#ffc53d"/></svg><p>Klick links auf eine E-Mail, um sie zu lesen.</p></div></div>`;
+  if (ansicht.schreiben) r.innerHTML = rueckRechts + htmlSchreiben();
+  else if (ansicht.offen) r.innerHTML = rueckRechts + htmlLesen(S.mails.find(m => m.id === ansicht.offen));
+  else r.innerHTML = rueckRechts + `<div class="nichts"><div><svg viewBox="0 0 120 120" aria-hidden="true"><rect x="14" y="30" width="92" height="64" rx="10" fill="#fff" stroke="#c5dcfb" stroke-width="4"/><path d="M16 36l44 30 44-30" fill="none" stroke="#c5dcfb" stroke-width="4" stroke-linejoin="round"/><rect x="78" y="40" width="18" height="20" rx="2" fill="#ffc53d"/></svg><p>Klick links auf eine E-Mail, um sie zu lesen.</p></div></div>`;
   gerendert = ansicht.schreiben;
   if (fokus && document.getElementById(fokus[0])) { const f = document.getElementById(fokus[0]); f.focus(); try { f.setSelectionRange(fokus[1], fokus[1]); } catch (e) {} }
 }
@@ -857,7 +861,7 @@ function fertigDialog() {
   d.innerHTML = `<div class="dialog"><span class="briefmarke stempel knall" style="--c:var(--gruen);color:#fff">${ic('haken')}</span>
     <h1>Alle ${AUFTRAEGE.length} Aufträge geschafft!</h1>
     <p>Das kannst du jetzt:</p>
-    <ul><li>E-Mails lesen, archivieren, löschen und zurückholen</li><li>eine neue E-Mail schreiben</li><li>antworten und weiterleiten</li><li>mit Anrede, Gruß und Namen</li></ul>
+    <ul><li>E-Mails lesen, archivieren, löschen und zurückholen</li><li>eine neue E-Mail schreiben</li><li>antworten und weiterleiten</li></ul>
     <p><b>Jetzt auf Zeit:</b> Immer neue Aufgaben, jede mit Countdown. Ist die Zeit um, ist ein Herz weg. Du hast drei.</p>
     <div class="zeile"><button class="neu" id="weiterSpielen">${ic('post')} Los geht’s</button></div></div>`;
   document.getElementById('app').appendChild(d);
